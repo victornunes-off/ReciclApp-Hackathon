@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
 <title>ReciclApp — Conecta. Coleta. Transforma.</title>
-<meta name="description" content="Protótipo do ReciclApp: plataforma de conexão e gestão de coletas de recicláveis para empresas, catadores e usuários.">
+<meta name="description" content="Protótipo do ReciclApp: plataforma B2B de conexão e gestão de coletas de recicláveis entre grandes geradores e catadores.">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-light.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-light.png" media="(prefers-color-scheme: light)">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-light.png" media="(prefers-color-scheme: dark)">
@@ -40,10 +40,6 @@
 
         <h2 class="text-center" style="font-size:var(--fs-md)">Como você deseja acessar?</h2>
         <div class="profile-options" role="group" aria-label="Selecione seu perfil">
-          <!-- <button class="profile-option" type="button" data-action="select-profile" data-profile="usuario">
-            <span class="profile-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span>
-            <span class="profile-option-text"><strong>Usuário</strong><span>Quero solicitar uma coleta</span></span>
-          </button> -->
           <button class="profile-option" type="button" data-action="select-profile" data-profile="empresa">
             <span class="profile-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg></span>
             <span class="profile-option-text"><strong>Empresa</strong><span>Quero gerenciar minhas coletas</span></span>
@@ -158,248 +154,6 @@
         <p class="text-xs text-muted">Dados demonstrativos para fins de apresentação.</p>
       </div>
     </section>
-
-    <!-- ================================================================
-         PERFIL 1 — USUÁRIO
-    ================================================================= -->
-
-    <!-- <section class="screen" id="screen-user-home" aria-label="Início do usuário">
-      <header class="app-header">
-        <div class="app-header-title">
-          <span class="app-header-greeting" data-role="user-greeting">Olá!</span>
-          <span class="app-header-subtitle">Vamos reciclar hoje?</span>
-        </div>
-        <div class="app-header-actions">
-          <button class="header-back notif-dot" data-action="navigate" data-target="notifications" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg></button>
-        </div>
-      </header>
-      <div class="screen-body stack-loose">
-        <button class="card card-hero card-clickable" type="button" data-action="navigate" data-target="user-materials" data-reset-draft="true">
-          <h3>Solicitar coleta</h3>
-          <p class="text-sm">Precisa descartar materiais? A gente conecta você a um catador.</p>
-          <span class="btn btn-lima btn-auto" style="pointer-events:none">Começar →</span>
-        </button>
-
-        <div>
-          <h3>Como funciona</h3>
-          <div class="grid-2">
-            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2M4 8l1 12h14l1-12M4 8h16"/></svg><span>1. Separe</span></div>
-            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span>2. Solicite</span></div>
-            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8L4 7Z"/></svg><span>3. Aguarde</span></div>
-            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6 9 17l-5-5"/></svg><span>4. Recicle</span></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-title-row">
-            <h3>Suas últimas coletas</h3>
-            <button class="btn-ghost text-xs" type="button" data-action="navigate" data-target="user-collections">Ver tudo</button>
-          </div>
-          <div class="stack" id="user-home-collections"></div>
-        </div>
-
-        <button class="btn btn-outline" type="button" data-action="navigate" data-target="classify">Não sabe se é reciclável? Identificar material</button>
-      </div>
-      <nav class="bottom-nav" aria-label="Navegação do usuário">
-        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
-        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
-        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
-        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
-      </nav>
-    </section>
-
-    <!-- Usuário — Seleção de materiais -->
-    <section class="screen" id="screen-user-materials" aria-label="Seleção de materiais">
-      <header class="app-header">
-        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
-        <div style="width:40px"></div>
-      </header>
-      <div class="screen-body">
-        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span></div>
-        <h2>O que você quer descartar?</h2>
-        <p class="text-muted text-sm">Selecione um ou mais materiais.</p>
-        <div class="chip-grid" id="user-materials-grid" role="group" aria-label="Materiais"></div>
-        <span class="field-error" id="user-materials-error" role="alert" style="display:block;margin-top:var(--space-3)">Selecione ao menos um material.</span>
-        <button class="btn btn-primary" type="button" data-action="user-materials-next" style="margin-top:var(--space-6)">Continuar</button>
-      </div>
-    </section>
-
-    <!-- Usuário — Quantidade -->
-    <section class="screen" id="screen-user-quantity" aria-label="Quantidade estimada">
-      <header class="app-header">
-        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
-        <div style="width:40px"></div>
-      </header>
-      <div class="screen-body">
-        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span></div>
-        <h2>Quanto aproximadamente?</h2>
-        <p class="text-muted text-sm">Não é necessário pesar — escolha uma estimativa.</p>
-        <div class="stack-tight" id="user-quantity-options" role="group" aria-label="Quantidade estimada"></div>
-        <button class="btn btn-primary" type="button" data-action="user-quantity-next" style="margin-top:var(--space-6)">Continuar</button>
-      </div>
-    </section>
-
-    <!-- Usuário — Fotos do material -->
-    <section class="screen" id="screen-user-photos" aria-label="Fotos do material">
-      <header class="app-header">
-        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
-        <div style="width:40px"></div>
-      </header>
-      <div class="screen-body">
-        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot"></span><span class="step-dot"></span></div>
-        <h2>Mostre como o material está</h2>
-        <p class="text-muted text-sm">A foto ajuda o catador a saber o que esperar — volume, condição e como o material está acondicionado.</p>
-        <div id="user-photos-field" style="margin-top:var(--space-4)"></div>
-        <button class="btn btn-primary" type="button" data-action="user-photos-next" style="margin-top:var(--space-6)">Continuar</button>
-        <button class="btn btn-ghost" type="button" data-action="user-photos-next">Pular por enquanto</button>
-      </div>
-    </section>
-
-    <!-- Usuário — Local -->
-    <section class="screen" id="screen-user-location" aria-label="Local da coleta">
-      <header class="app-header">
-        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
-        <div style="width:40px"></div>
-      </header>
-      <div class="screen-body">
-        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot"></span></div>
-        <h2>Onde faremos a coleta?</h2>
-        <form id="user-location-form" class="stack" novalidate>
-          <button class="btn btn-outline btn-sm btn-auto" type="button" data-action="use-my-location" data-form="user-location"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-3px;margin-right:4px"><path d="M12 21s7-6.6 7-11a7 7 0 1 0-14 0c0 4.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>Usar minha localização</button>
-          <div class="field">
-            <label class="field-label" for="user-address">Endereço</label>
-            <input class="input" id="user-address" type="text" placeholder="Rua, número, bairro" required maxlength="120" aria-describedby="user-address-error">
-            <span class="field-error" id="user-address-error" role="alert">Informe o endereço da coleta.</span>
-          </div>
-          <div class="field">
-            <label class="field-label" for="user-complement">Complemento</label>
-            <input class="input" id="user-complement" type="text" placeholder="Apto, bloco, referência" maxlength="80">
-          </div>
-          <div class="field">
-            <label class="field-label" for="user-observation">Observação</label>
-            <textarea class="input" id="user-observation" placeholder="Alguma informação para o catador?" maxlength="200"></textarea>
-          </div>
-          <button class="btn btn-primary" type="submit">Continuar</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- Usuário — Confirmação -->
-    <section class="screen" id="screen-user-confirm" aria-label="Confirmação da solicitação">
-      <header class="app-header">
-        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Confirmar solicitação</span></div>
-        <div style="width:40px"></div>
-      </header>
-      <div class="screen-body">
-        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span></div>
-        <div class="card">
-          <dl class="summary-list" id="user-confirm-summary"></dl>
-        </div>
-        <div class="card" style="margin-top:var(--space-4)" id="user-confirm-photos"></div>
-        <button class="btn btn-primary" type="button" id="user-confirm-submit" style="margin-top:var(--space-6)">Solicitar coleta</button>
-      </div>
-    </section>
-
-    <!-- Usuário — Acompanhamento -->
-    <section class="screen" id="screen-user-tracking" aria-label="Acompanhamento da coleta">
-      <header class="app-header">
-        <button class="header-back" data-action="navigate" data-target="user-home" aria-label="Voltar ao início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)" data-role="user-tracking-protocol">Coleta</span></div>
-        <div style="width:40px"></div>
-      </header>
-      <div class="screen-body stack">
-        <div class="card" id="user-tracking-status"></div>
-        <div class="card">
-          <h3>Status da coleta</h3>
-          <div id="user-tracking-timeline"></div>
-        </div>
-        <div class="card">
-          <h3>Registro fotográfico</h3>
-          <div id="user-tracking-photos"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Usuário — Resultado -->
-    <section class="screen" id="screen-user-result" aria-label="Coleta concluída">
-      <div class="screen-body center-col" style="justify-content:center;flex:1">
-        <div class="result-hero">
-          <span style="font-size:2.5rem">🎉</span>
-          <h1 style="margin-top:var(--space-3)">Coleta concluída!</h1>
-        </div>
-        <div class="card" style="width:100%">
-          <div class="kpi-grid">
-            <div class="kpi-card"><span class="kpi-value" data-role="user-result-weight">—</span><span class="kpi-label">Coletados</span></div>
-            <div class="kpi-card"><span class="kpi-value" data-role="user-result-quality">—</span><span class="kpi-label">Qualidade</span></div>
-          </div>
-          <p class="text-sm text-center" style="margin-top:var(--space-4)">1 catador beneficiado</p>
-        </div>
-        <p class="text-muted text-center" style="margin-top:var(--space-5)">Obrigado por transformar descarte em oportunidade.</p>
-        <button class="btn btn-primary" type="button" data-action="navigate" data-target="user-home" style="margin-top:var(--space-4)">Voltar ao início</button>
-      </div>
-    </section>
-
-    <!-- Usuário — Lista de coletas -->
-    <section class="screen" id="screen-user-collections" aria-label="Minhas coletas">
-      <header class="app-header">
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Minhas coletas</span></div>
-        <button class="header-back" data-action="navigate" data-target="user-materials" data-reset-draft="true" aria-label="Nova coleta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
-      </header>
-      <div class="screen-body stack" id="user-collections-list"></div>
-      <nav class="bottom-nav" aria-label="Navegação do usuário">
-        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
-        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
-        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
-        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
-      </nav>
-    </section>
-
-    <!-- Usuário — Impacto -->
-    <section class="screen" id="screen-user-impact" aria-label="Meu impacto">
-      <header class="app-header">
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Meu impacto</span></div>
-      </header>
-      <div class="screen-body stack">
-        <div class="kpi-grid" id="user-impact-kpis"></div>
-        <div class="card">
-          <h3>Materiais que você já reciclou</h3>
-          <div id="user-impact-materials"></div>
-        </div>
-      </div>
-      <nav class="bottom-nav" aria-label="Navegação do usuário">
-        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
-        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
-        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
-        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
-      </nav>
-    </section>
-
-    <!-- Usuário — Perfil -->
-    <!-- <section class="screen" id="screen-user-profile" aria-label="Perfil do usuário">
-      <header class="app-header">
-        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Perfil</span></div>
-      </header>
-      <div class="screen-body stack">
-        <div class="card card-row">
-          <div class="card-row" style="gap:var(--space-3)">
-            <span class="avatar" data-role="user-avatar">U</span>
-            <div><strong data-role="user-profile-name">—</strong><div class="text-xs text-muted">Perfil Usuário · gratuito</div></div>
-          </div>
-        </div>
-        <button class="btn btn-outline" type="button" data-action="logout">Sair e trocar de perfil</button>
-      </div>
-      <nav class="bottom-nav" aria-label="Navegação do usuário">
-        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
-        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
-        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
-        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
-      </nav>
-    </section> -->
 
     <!-- ================================================================
          PERFIL 2 — EMPRESA
@@ -958,7 +712,6 @@
 <script src="js/router.js"></script>
 <script src="js/components.js"></script>
 <script src="js/photos.js"></script>
-<script src="js/usuario.js"></script>
 <script src="js/empresa.js"></script>
 <script src="js/catador.js"></script>
 <script src="js/app.js"></script>

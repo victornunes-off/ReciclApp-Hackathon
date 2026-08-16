@@ -7,7 +7,7 @@ const ReciclState = (() => {
   const STORAGE_KEY = 'reciclapp_state_v1';
 
   const appState = {
-    currentProfile: null, // 'usuario' | 'empresa' | 'catador'
+    currentProfile: null, // 'empresa' | 'catador'
     currentUser: null, // { name, orgName? }
     collectorAvailable: true,
     collections: [],
@@ -102,9 +102,6 @@ const ReciclState = (() => {
     if (profile === 'empresa') {
       return appState.collections.filter((item) => item.requesterType === 'empresa');
     }
-    if (profile === 'usuario') {
-      return appState.collections.filter((item) => item.requesterType === 'usuario');
-    }
     return appState.collections;
   }
 
@@ -147,20 +144,6 @@ const ReciclState = (() => {
 
     appState.collections = [
       {
-        id: 'col-1010',
-        protocol: '1010',
-        requesterType: 'usuario',
-        requesterName: 'Ana Beatriz',
-        materials: ['papelao', 'plastico'],
-        quantityLabel: '12 kg',
-        weightFinal: 12,
-        quality: 91,
-        status: 'concluida',
-        date: isoDaysAgo(6),
-        address: 'Rua das Palmeiras, 123',
-        collectorName: 'Carlos Mendes',
-      },
-      {
         id: 'col-1017',
         protocol: '1017',
         requesterType: 'empresa',
@@ -180,7 +163,6 @@ const ReciclState = (() => {
     appState.notifications = [
       { id: ReciclUtils.generateId('notif'), profile: 'empresa', read: false, createdAt: new Date(now - 3600000).toISOString(), title: 'Carlos aceitou sua coleta', body: 'Coleta #1017 está em andamento.' },
       { id: ReciclUtils.generateId('notif'), profile: 'catador', read: false, createdAt: new Date(now - 7200000).toISOString(), title: 'Nova oportunidade próxima', body: 'Empresa Verde · 1,8 km de distância.' },
-      { id: ReciclUtils.generateId('notif'), profile: 'usuario', read: true, createdAt: new Date(now - 86400000).toISOString(), title: 'Coleta concluída', body: 'Sua coleta de 12 kg foi finalizada.' },
     ];
 
     persist();

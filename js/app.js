@@ -5,15 +5,14 @@
 (() => {
   const { el, isValidEmail } = ReciclUtils;
 
-  const PROFILE_LABELS = { usuario: 'usuário', empresa: 'empresa', catador: 'catador' };
-  const PROFILE_HOME_SCREEN = { usuario: 'user-home', empresa: 'empresa-dashboard', catador: 'catador-home' };
+  const PROFILE_LABELS = { empresa: 'empresa', catador: 'catador' };
+  const PROFILE_HOME_SCREEN = { empresa: 'empresa-dashboard', catador: 'catador-home' };
   const DEMO_PERSONAS = {
-    usuario: { name: 'Ana Beatriz', email: 'ana.beatriz@email.com' },
     empresa: { name: 'Ricardo Alves', orgName: 'Empresa Verde Ltda.', email: 'contato@empresaverde.com' },
     catador: { name: 'João da Silva', email: 'joao.silva@email.com' },
   };
 
-  let pendingProfile = 'usuario';
+  let pendingProfile = 'empresa';
 
   function toggleFieldError(field, hasError) {
     const wrap = field.closest('.field');
@@ -152,15 +151,10 @@
     'logout': () => logout(),
     'back': () => ReciclRouter.back('splash'),
     'close-modal': (targetEl) => ReciclComponents.closeModal(targetEl.dataset.modal),
-    'use-my-location': () => ReciclUsuario.useMyLocation(),
-    'user-materials-next': () => ReciclUsuario.goToQuantity(),
-    'user-quantity-next': () => ReciclUsuario.goToPhotos(),
-    'user-photos-next': () => ReciclUsuario.goToLocation(),
     'submit-login-as-guest': () => handleLoginSubmit(null, { skipPassword: true }),
     'view-report': () => ReciclEmpresa.viewReport(),
     'simulate-export': () => ReciclEmpresa.simulateExport(),
     'navigate': (targetEl) => {
-      if (targetEl.dataset.resetDraft === 'true') ReciclUsuario.resetDraft();
       ReciclRouter.navigate(targetEl.dataset.target);
     },
   };
@@ -177,7 +171,6 @@
     ReciclState.ensureLoaded();
 
     ReciclPhotos.init();
-    ReciclUsuario.init();
     ReciclEmpresa.init();
     ReciclCatador.init();
 
@@ -194,6 +187,8 @@
     if (currentProfile && PROFILE_HOME_SCREEN[currentProfile]) {
       ReciclRouter.navigate(PROFILE_HOME_SCREEN[currentProfile], { profile: currentProfile, replace: true });
     } else {
+      // Perfil ausente ou descontinuado (ex.: sessão antiga de "usuario"): limpa e volta ao início.
+      if (currentProfile) ReciclState.setProfile(null, null);
       ReciclRouter.navigate('splash', { profile: null, replace: true });
     }
   }

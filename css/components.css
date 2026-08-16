@@ -821,20 +821,6 @@ textarea.input {
 .summary-row dt { color: var(--color-text-muted); }
 .summary-row dd { margin: 0; font-weight: var(--fw-medium); text-align: right; color: var(--color-ink); }
 
-/* ---------- Progress steps ---------- */
-.step-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-5);
-}
-.step-dot {
-  flex: 1;
-  height: 4px;
-  border-radius: var(--radius-pill);
-  background: var(--color-border);
-}
-.step-dot.is-done { background: var(--color-turquesa); }
 
 
 /* ---------- Section helpers ---------- */
