@@ -1,0 +1,38 @@
+/* ==========================================================================
+   ReciclApp — Apresentação do app
+   O protótipo é um APLICATIVO MOBILE: o layout é sempre o de smartphone,
+   em qualquer largura de tela.
+
+   - No celular (ou no modo dispositivo do DevTools): ocupa a tela inteira.
+   - Em telas maiores: o mesmo app aparece centralizado dentro de uma
+     moldura de smartphone, sem nunca virar um layout de desktop.
+   ========================================================================== */
+
+@media (min-width: 480px) {
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: var(--space-6) var(--space-4);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(var(--color-turquesa-rgb), 0.16), transparent 60%),
+      var(--color-azul-escuro);
+  }
+
+  /* Moldura do aparelho — nunca ultrapassa a altura da janela (descontado o padding do body) */
+  .app-shell {
+    height: min(var(--app-frame-height), calc(100vh - var(--space-6) * 2));
+    border-radius: 44px;
+    border: 11px solid #0b1a21;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 30px 80px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Recorte interno acompanha o arredondamento da moldura */
+  .app-main {
+    border-radius: 33px;
+  }
+
+}

@@ -1,0 +1,201 @@
+/* ==========================================================================
+   ReciclApp — Layout geral
+   ========================================================================== */
+
+/* O app é sempre um smartphone: altura fixa e rolagem interna (não da página). */
+.app-shell {
+  width: 100%;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-offwhite);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Telas: apenas .is-active é exibida */
+.screen {
+  display: none;
+  flex-direction: column;
+  animation: screenIn var(--transition-slow);
+}
+.screen.is-active {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* O corpo da tela é a única área que rola — header e navegação ficam fixos,
+   como num app nativo. */
+.screen-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-5);
+  padding-bottom: var(--space-6);
+}
+
+.screen-body.no-header-pad {
+  padding-top: var(--space-7);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stack-tight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stack-loose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+
+.center-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.text-muted { color: var(--color-text-muted); }
+.text-sm { font-size: var(--fs-sm); }
+.text-xs { font-size: var(--fs-xs); }
+.text-center { text-align: center; }
+.mb-0 { margin-bottom: 0; }
+
+/* ---------- Splash / boas-vindas ---------- */
+.splash-screen {
+  justify-content: center;
+  background: linear-gradient(180deg, var(--color-offwhite) 0%, #EDE9DA 100%);
+  padding: var(--space-7) var(--space-6);
+}
+/* Lockup de marca (ícone + nome + assinatura) */
+.brand-lockup {
+  display: block;
+  height: auto;
+  margin-inline: auto;
+}
+.brand-lockup-hero {
+  width: min(78%, 300px);
+  margin-bottom: var(--space-7);
+}
+.brand-lockup-sm {
+  width: min(58%, 210px);
+  margin: 0 0 var(--space-6);
+}
+.splash-lead {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-7);
+  font-size: var(--fs-md);
+}
+.profile-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+.profile-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-white);
+  text-align: left;
+  transition: border-color var(--transition-base), transform var(--transition-base);
+}
+.profile-option:hover { border-color: var(--color-turquesa); }
+.profile-option:active { transform: scale(0.99); }
+.profile-option-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.profile-option-icon svg { width: 24px; height: 24px; stroke: var(--color-petroleo); }
+/* Os seletores abaixo são escopados em .profile-option-text de propósito:
+   um `.profile-option span` genérico também atingiria o .profile-option-icon
+   (que é um span) e o forçaria a display:block, desalinhando o ícone. */
+.profile-option-text { min-width: 0; }
+.profile-option-text strong { display: block; color: var(--color-ink); }
+.profile-option-text > span { display: block; font-size: var(--fs-xs); color: var(--color-text-muted); margin-top: 2px; }
+
+.demo-cta {
+  text-align: center;
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--color-border-strong);
+}
+
+/* ---------- Dashboard header hero ---------- */
+.impact-summary {
+  background: var(--color-azul-escuro);
+  color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.impact-summary h3, .impact-summary .kpi-label { color: rgba(255,255,255,0.75); }
+.impact-summary .kpi-value { color: var(--color-white); }
+.impact-summary .kpi-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+/* ---------- Quick actions ---------- */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  text-align: center;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+.quick-action svg { width: 22px; height: 22px; stroke: var(--color-turquesa); }
+
+

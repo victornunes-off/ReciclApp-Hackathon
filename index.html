@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+<title>ReciclApp — Conecta. Coleta. Transforma.</title>
+<meta name="description" content="Protótipo do ReciclApp: plataforma de conexão e gestão de coletas de recicláveis para empresas, catadores e usuários.">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-light.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-light.png" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-light.png" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="assets/icon-light.png">
+<meta name="theme-color" content="#F5F3EA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#073F3F" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<a class="skip-link" href="#app-main">Pular para o conteúdo</a>
+
+<div class="app-shell" data-authenticated="false" data-profile="">
+
+  <!-- Toasts e modais vivem dentro da moldura para não vazarem para a página -->
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <!-- ======================= CONTEÚDO PRINCIPAL ======================= -->
+  <main class="app-main" id="app-main">
+
+    <!-- ################################################################
+         TELA — SPLASH / SELEÇÃO DE PERFIL
+    ################################################################# -->
+    <section class="screen is-active splash-screen" id="screen-splash" aria-label="Boas-vindas">
+      <div class="screen-body">
+        <img class="brand-lockup brand-lockup-hero" src="assets/logo-on-light.png"
+             alt="ReciclApp — Conecta. Coleta. Transforma." width="900" height="256">
+        <p class="splash-lead">Reciclar começa na decisão de separar.</p>
+
+        <h2 class="text-center" style="font-size:var(--fs-md)">Como você deseja acessar?</h2>
+        <div class="profile-options" role="group" aria-label="Selecione seu perfil">
+          <button class="profile-option" type="button" data-action="select-profile" data-profile="usuario">
+            <span class="profile-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+            <span class="profile-option-text"><strong>Usuário</strong><span>Quero solicitar uma coleta</span></span>
+          </button>
+          <button class="profile-option" type="button" data-action="select-profile" data-profile="empresa">
+            <span class="profile-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg></span>
+            <span class="profile-option-text"><strong>Empresa</strong><span>Quero gerenciar minhas coletas</span></span>
+          </button>
+          <button class="profile-option" type="button" data-action="select-profile" data-profile="catador">
+            <span class="profile-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8L4 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg></span>
+            <span class="profile-option-text"><strong>Catador</strong><span>Quero encontrar oportunidades</span></span>
+          </button>
+        </div>
+
+        <div class="demo-cta">
+          <button class="btn btn-lima" type="button" data-action="start-demo">Iniciar demonstração</button>
+          <p class="text-xs text-muted" style="margin-top:var(--space-3)">Carrega um cenário pronto — ideal para apresentações.</p>
+          <button class="btn-ghost text-xs" type="button" data-action="navigate" data-target="overview">Ver potencial de escala do ReciclApp</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ################################################################
+         TELA — LOGIN / ENTRADA
+    ################################################################# -->
+    <section class="screen" id="screen-login" aria-label="Entrar">
+      <div class="screen-body no-header-pad">
+        <button class="header-back" data-action="navigate" data-target="splash" aria-label="Voltar para seleção de perfil" style="margin-bottom:var(--space-4)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <img class="brand-lockup brand-lockup-sm" src="assets/logo-on-light.png"
+             alt="ReciclApp" width="900" height="256">
+        <h1 id="login-title" style="font-size:var(--fs-xl)">Entrar como <span data-role="login-profile-label">usuário</span></h1>
+        
+
+        <form id="login-form" class="stack" novalidate>
+          <div class="field">
+            <label class="field-label" for="login-name">Nome</label>
+            <input class="input" id="login-name" name="name" type="text" autocomplete="name" placeholder="Como podemos te chamar?" required maxlength="60" aria-describedby="login-name-error">
+            <span class="field-error" id="login-name-error" role="alert">Informe seu nome.</span>
+          </div>
+          <div class="field" data-role="login-org-field" hidden>
+            <label class="field-label" for="login-org">Nome da empresa</label>
+            <input class="input" id="login-org" name="org" type="text" autocomplete="organization" placeholder="Ex.: Empresa Verde Ltda." maxlength="60">
+          </div>
+          <div class="field">
+            <label class="field-label" for="login-email">E-mail</label>
+            <input class="input" id="login-email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" required aria-describedby="login-email-error">
+            <span class="field-error" id="login-email-error" role="alert">Informe um e-mail válido.</span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="login-password">Senha</label>
+            <input class="input" id="login-password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required minlength="4">
+            <span class="field-hint">Protótipo: qualquer senha com 4+ caracteres é aceita. Nada é armazenado.</span>
+          </div>
+          <button class="btn btn-primary" type="submit">Entrar</button>
+          <button class="btn btn-outline" type="button" data-action="submit-login-as-guest">Criar conta</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ################################################################
+         TELA — NOTIFICAÇÕES
+    ################################################################# -->
+    <section class="screen" id="screen-notifications" aria-label="Notificações">
+      <header class="app-header">
+        <div class="app-header-actions">
+          <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        </div>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Notificações</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body" id="notifications-list"></div>
+    </section>
+
+    <!-- ################################################################
+         TELA — IDENTIFICAR MATERIAL (simulação de IA)
+    ################################################################# -->
+    <section class="screen" id="screen-classify" aria-label="Identificar material">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Identificar material</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack">
+        <p class="text-muted text-sm">Não sabe se um item é reciclável? Envie uma foto e receba uma orientação demonstrativa.</p>
+        <div class="badge badge-info" style="width:fit-content">Simulação — versão futura usará IA real</div>
+
+        <label class="card card-clickable center-col" for="classify-input" style="border-style:dashed; padding:var(--space-7) var(--space-4)">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--color-turquesa); margin-bottom:var(--space-3)"><path d="M4 8V6a2 2 0 0 1 2-2h2l1.5-2h5L16 4h2a2 2 0 0 1 2 2v2"/><rect x="2" y="8" width="20" height="12" rx="2"/><circle cx="12" cy="14" r="3.5"/></svg>
+          <strong>Selecionar foto</strong>
+          <span class="text-xs text-muted">Escolha uma imagem do dispositivo</span>
+          <input type="file" id="classify-input" accept="image/*" class="sr-only">
+        </label>
+
+        <div id="classify-result" hidden></div>
+      </div>
+    </section>
+
+    <!-- ################################################################
+         TELA — VISÃO GERAL DO RECICLAPP (pitch / escala)
+    ################################################################# -->
+    <section class="screen" id="screen-overview" aria-label="Visão geral do ReciclApp">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Visão Geral do ReciclApp</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack">
+        <p class="text-muted text-sm">Potencial de escala da plataforma considerando todas as operações conectadas.</p>
+        <div class="kpi-grid" id="overview-kpis"></div>
+        <div class="card">
+          <h3>Distribuição de materiais</h3>
+          <div id="overview-materials"></div>
+        </div>
+        <p class="text-xs text-muted">Dados demonstrativos para fins de apresentação.</p>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         PERFIL 1 — USUÁRIO
+    ================================================================= -->
+
+    <section class="screen" id="screen-user-home" aria-label="Início do usuário">
+      <header class="app-header">
+        <div class="app-header-title">
+          <span class="app-header-greeting" data-role="user-greeting">Olá!</span>
+          <span class="app-header-subtitle">Vamos reciclar hoje?</span>
+        </div>
+        <div class="app-header-actions">
+          <button class="header-back notif-dot" data-action="navigate" data-target="notifications" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg></button>
+        </div>
+      </header>
+      <div class="screen-body stack-loose">
+        <button class="card card-hero card-clickable" type="button" data-action="navigate" data-target="user-materials" data-reset-draft="true">
+          <h3>Solicitar coleta</h3>
+          <p class="text-sm">Precisa descartar materiais? A gente conecta você a um catador.</p>
+          <span class="btn btn-lima btn-auto" style="pointer-events:none">Começar →</span>
+        </button>
+
+        <div>
+          <h3>Como funciona</h3>
+          <div class="grid-2">
+            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2M4 8l1 12h14l1-12M4 8h16"/></svg><span>1. Separe</span></div>
+            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span>2. Solicite</span></div>
+            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8L4 7Z"/></svg><span>3. Aguarde</span></div>
+            <div class="quick-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6 9 17l-5-5"/></svg><span>4. Recicle</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-title-row">
+            <h3>Suas últimas coletas</h3>
+            <button class="btn-ghost text-xs" type="button" data-action="navigate" data-target="user-collections">Ver tudo</button>
+          </div>
+          <div class="stack" id="user-home-collections"></div>
+        </div>
+
+        <button class="btn btn-outline" type="button" data-action="navigate" data-target="classify">Não sabe se é reciclável? Identificar material</button>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação do usuário">
+        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
+        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Usuário — Seleção de materiais -->
+    <section class="screen" id="screen-user-materials" aria-label="Seleção de materiais">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span></div>
+        <h2>O que você quer descartar?</h2>
+        <p class="text-muted text-sm">Selecione um ou mais materiais.</p>
+        <div class="chip-grid" id="user-materials-grid" role="group" aria-label="Materiais"></div>
+        <span class="field-error" id="user-materials-error" role="alert" style="display:block;margin-top:var(--space-3)">Selecione ao menos um material.</span>
+        <button class="btn btn-primary" type="button" data-action="user-materials-next" style="margin-top:var(--space-6)">Continuar</button>
+      </div>
+    </section>
+
+    <!-- Usuário — Quantidade -->
+    <section class="screen" id="screen-user-quantity" aria-label="Quantidade estimada">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span></div>
+        <h2>Quanto aproximadamente?</h2>
+        <p class="text-muted text-sm">Não é necessário pesar — escolha uma estimativa.</p>
+        <div class="stack-tight" id="user-quantity-options" role="group" aria-label="Quantidade estimada"></div>
+        <button class="btn btn-primary" type="button" data-action="user-quantity-next" style="margin-top:var(--space-6)">Continuar</button>
+      </div>
+    </section>
+
+    <!-- Usuário — Fotos do material -->
+    <section class="screen" id="screen-user-photos" aria-label="Fotos do material">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot"></span><span class="step-dot"></span></div>
+        <h2>Mostre como o material está</h2>
+        <p class="text-muted text-sm">A foto ajuda o catador a saber o que esperar — volume, condição e como o material está acondicionado.</p>
+        <div id="user-photos-field" style="margin-top:var(--space-4)"></div>
+        <button class="btn btn-primary" type="button" data-action="user-photos-next" style="margin-top:var(--space-6)">Continuar</button>
+        <button class="btn btn-ghost" type="button" data-action="user-photos-next">Pular por enquanto</button>
+      </div>
+    </section>
+
+    <!-- Usuário — Local -->
+    <section class="screen" id="screen-user-location" aria-label="Local da coleta">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Solicitar coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot"></span></div>
+        <h2>Onde faremos a coleta?</h2>
+        <form id="user-location-form" class="stack" novalidate>
+          <button class="btn btn-outline btn-sm btn-auto" type="button" data-action="use-my-location" data-form="user-location"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-3px;margin-right:4px"><path d="M12 21s7-6.6 7-11a7 7 0 1 0-14 0c0 4.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>Usar minha localização</button>
+          <div class="field">
+            <label class="field-label" for="user-address">Endereço</label>
+            <input class="input" id="user-address" type="text" placeholder="Rua, número, bairro" required maxlength="120" aria-describedby="user-address-error">
+            <span class="field-error" id="user-address-error" role="alert">Informe o endereço da coleta.</span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="user-complement">Complemento</label>
+            <input class="input" id="user-complement" type="text" placeholder="Apto, bloco, referência" maxlength="80">
+          </div>
+          <div class="field">
+            <label class="field-label" for="user-observation">Observação</label>
+            <textarea class="input" id="user-observation" placeholder="Alguma informação para o catador?" maxlength="200"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Continuar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Usuário — Confirmação -->
+    <section class="screen" id="screen-user-confirm" aria-label="Confirmação da solicitação">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Confirmar solicitação</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <div class="step-indicator"><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span><span class="step-dot is-done"></span></div>
+        <div class="card">
+          <dl class="summary-list" id="user-confirm-summary"></dl>
+        </div>
+        <div class="card" style="margin-top:var(--space-4)" id="user-confirm-photos"></div>
+        <button class="btn btn-primary" type="button" id="user-confirm-submit" style="margin-top:var(--space-6)">Solicitar coleta</button>
+      </div>
+    </section>
+
+    <!-- Usuário — Acompanhamento -->
+    <section class="screen" id="screen-user-tracking" aria-label="Acompanhamento da coleta">
+      <header class="app-header">
+        <button class="header-back" data-action="navigate" data-target="user-home" aria-label="Voltar ao início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)" data-role="user-tracking-protocol">Coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card" id="user-tracking-status"></div>
+        <div class="card">
+          <h3>Status da coleta</h3>
+          <div id="user-tracking-timeline"></div>
+        </div>
+        <div class="card">
+          <h3>Registro fotográfico</h3>
+          <div id="user-tracking-photos"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usuário — Resultado -->
+    <section class="screen" id="screen-user-result" aria-label="Coleta concluída">
+      <div class="screen-body center-col" style="justify-content:center;flex:1">
+        <div class="result-hero">
+          <span style="font-size:2.5rem">🎉</span>
+          <h1 style="margin-top:var(--space-3)">Coleta concluída!</h1>
+        </div>
+        <div class="card" style="width:100%">
+          <div class="kpi-grid">
+            <div class="kpi-card"><span class="kpi-value" data-role="user-result-weight">—</span><span class="kpi-label">Coletados</span></div>
+            <div class="kpi-card"><span class="kpi-value" data-role="user-result-quality">—</span><span class="kpi-label">Qualidade</span></div>
+          </div>
+          <p class="text-sm text-center" style="margin-top:var(--space-4)">1 catador beneficiado</p>
+        </div>
+        <p class="text-muted text-center" style="margin-top:var(--space-5)">Obrigado por transformar descarte em oportunidade.</p>
+        <button class="btn btn-primary" type="button" data-action="navigate" data-target="user-home" style="margin-top:var(--space-4)">Voltar ao início</button>
+      </div>
+    </section>
+
+    <!-- Usuário — Lista de coletas -->
+    <section class="screen" id="screen-user-collections" aria-label="Minhas coletas">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Minhas coletas</span></div>
+        <button class="header-back" data-action="navigate" data-target="user-materials" data-reset-draft="true" aria-label="Nova coleta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+      </header>
+      <div class="screen-body stack" id="user-collections-list"></div>
+      <nav class="bottom-nav" aria-label="Navegação do usuário">
+        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
+        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Usuário — Impacto -->
+    <section class="screen" id="screen-user-impact" aria-label="Meu impacto">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Meu impacto</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="kpi-grid" id="user-impact-kpis"></div>
+        <div class="card">
+          <h3>Materiais que você já reciclou</h3>
+          <div id="user-impact-materials"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação do usuário">
+        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
+        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Usuário — Perfil -->
+    <section class="screen" id="screen-user-profile" aria-label="Perfil do usuário">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Perfil</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card card-row">
+          <div class="card-row" style="gap:var(--space-3)">
+            <span class="avatar" data-role="user-avatar">U</span>
+            <div><strong data-role="user-profile-name">—</strong><div class="text-xs text-muted">Perfil Usuário · gratuito</div></div>
+          </div>
+        </div>
+        <button class="btn btn-outline" type="button" data-action="logout">Sair e trocar de perfil</button>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação do usuário">
+        <button class="bottom-nav-item" data-nav-target="user-home" data-action="navigate" data-target="user-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="user-collections" data-action="navigate" data-target="user-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="user-impact" data-action="navigate" data-target="user-impact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 19v-6M12 19V9M16 19v-3"/></svg>Impacto</button>
+        <button class="bottom-nav-item" data-nav-target="user-profile" data-action="navigate" data-target="user-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         PERFIL 2 — EMPRESA
+    ================================================================= -->
+
+    <section class="screen" id="screen-empresa-dashboard" aria-label="Dashboard da empresa" data-desktop-grid="true">
+      <header class="app-header">
+        <div class="app-header-title">
+          <span class="app-header-greeting" data-role="empresa-greeting">Olá, Empresa.</span>
+          <span class="app-header-subtitle">Gerencie suas coletas.</span>
+        </div>
+        <div class="app-header-actions">
+          <button class="header-back notif-dot" data-action="navigate" data-target="notifications" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg></button>
+        </div>
+      </header>
+      <div class="screen-body stack-loose">
+        <div class="stack">
+          <div class="kpi-grid" id="empresa-dashboard-kpis"></div>
+          <button class="btn btn-primary" type="button" data-action="navigate" data-target="empresa-collection-type">+ Nova coleta</button>
+          <div class="quick-actions">
+            <button class="quick-action" type="button" data-action="navigate" data-target="empresa-sporadic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8L4 7Z"/></svg><span>Coleta esporádica</span></button>
+            <button class="quick-action" type="button" data-action="navigate" data-target="empresa-event"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Coleta para evento</span></button>
+            <button class="quick-action" type="button" data-action="navigate" data-target="empresa-bulk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l9-4 9 4-9 4-9-4Z"/><path d="M3 7v10l9 4 9-4V7"/></svg><span>Grandes volumes</span></button>
+          </div>
+          <div>
+            <div class="section-title-row">
+              <h3>Últimas coletas</h3>
+              <button class="btn-ghost text-xs" type="button" data-action="navigate" data-target="empresa-collections">Ver tudo</button>
+            </div>
+            <div class="stack" id="empresa-dashboard-collections"></div>
+          </div>
+        </div>
+        <aside class="stack">
+          <div class="card">
+            <h3>Serviços</h3>
+            <p class="text-sm text-muted">Conheça o que o ReciclApp oferece para sua operação.</p>
+            <button class="btn btn-outline btn-sm" type="button" data-action="navigate" data-target="empresa-services">Ver serviços</button>
+          </div>
+        </aside>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação da empresa">
+        <button class="bottom-nav-item" data-nav-target="empresa-dashboard" data-action="navigate" data-target="empresa-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-collections" data-action="navigate" data-target="empresa-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-report" data-action="navigate" data-target="empresa-report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l3 3v17H6V2Z"/><path d="M15 2v3h3"/><path d="M9 12h6M9 16h6"/></svg>Relatórios</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-profile" data-action="navigate" data-target="empresa-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Empresa — Tipo de coleta -->
+    <section class="screen" id="screen-empresa-collection-type" aria-label="Tipo de coleta">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Nova coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack-tight">
+        <button class="option-select" type="button" data-action="navigate" data-target="empresa-sporadic">
+          <strong>Coleta esporádica</strong>
+          <span>Uma coleta pontual para materiais acumulados.</span>
+        </button>
+        <button class="option-select" type="button" data-action="navigate" data-target="empresa-event">
+          <strong>Evento</strong>
+          <span>Planeje a coleta antes, durante ou depois do evento.</span>
+        </button>
+        <button class="option-select" type="button" data-action="navigate" data-target="empresa-bulk">
+          <strong>Grande volume</strong>
+          <span>Solicite uma operação para grandes quantidades.</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Empresa — Coleta esporádica -->
+    <section class="screen" id="screen-empresa-sporadic" aria-label="Coleta esporádica">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Coleta esporádica</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <form id="empresa-sporadic-form" class="stack" novalidate>
+          <div class="field">
+            <label class="field-label" for="sp-company">Empresa</label>
+            <input class="input" id="sp-company" type="text" required maxlength="80">
+          </div>
+          <div class="field">
+            <label class="field-label" for="sp-unit">Unidade</label>
+            <input class="input" id="sp-unit" type="text" placeholder="Ex.: Matriz, Filial Centro" maxlength="80">
+          </div>
+          <div class="field">
+            <label class="field-label" for="sp-address">Endereço</label>
+            <input class="input" id="sp-address" type="text" required maxlength="120">
+            <span class="field-error" role="alert">Informe o endereço da coleta.</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Materiais</span>
+            <div class="chip-grid" id="sp-materials-grid" role="group" aria-label="Materiais"></div>
+            <span class="field-error" id="sp-materials-error" role="alert" style="display:block">Selecione ao menos um material.</span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="sp-quantity">Quantidade estimada</label>
+            <select class="input" id="sp-quantity" required>
+              <option value="">Selecione</option>
+              <option value="Pequena (até 50 kg)">Pequena (até 50 kg)</option>
+              <option value="Média (50-200 kg)">Média (50–200 kg)</option>
+              <option value="Grande (acima de 200 kg)">Grande (acima de 200 kg)</option>
+            </select>
+          </div>
+          <div class="input-row">
+            <div class="field">
+              <label class="field-label" for="sp-date">Data</label>
+              <input class="input" id="sp-date" type="date" required>
+              <span class="field-error" role="alert">Escolha uma data válida (hoje ou futura).</span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="sp-window">Janela de horário</label>
+              <select class="input" id="sp-window">
+                <option value="Manhã (8h-12h)">Manhã (8h–12h)</option>
+                <option value="Tarde (13h-18h)">Tarde (13h–18h)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">Fotos do material</span>
+            <div id="sp-photos-field"></div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="sp-notes">Observações</label>
+            <textarea class="input" id="sp-notes" maxlength="200"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Solicitar coleta</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Empresa — Evento -->
+    <section class="screen" id="screen-empresa-event" aria-label="Coleta para evento">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Coleta para evento</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <form id="empresa-event-form" class="stack" novalidate>
+          <div class="field">
+            <label class="field-label" for="ev-name">Nome do evento</label>
+            <input class="input" id="ev-name" type="text" list="ev-name-suggestions" placeholder="Ex.: Expo Rondônia 2026" required maxlength="80">
+            <datalist id="ev-name-suggestions"></datalist>
+            <span class="field-error" role="alert">Informe o nome do evento.</span>
+          </div>
+          <div class="input-row">
+            <div class="field">
+              <label class="field-label" for="ev-date">Data</label>
+              <input class="input" id="ev-date" type="date" required>
+              <span class="field-error" role="alert">Escolha uma data válida.</span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="ev-time">Horário</label>
+              <input class="input" id="ev-time" type="time" required>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="ev-local">Local</label>
+            <input class="input" id="ev-local" type="text" required maxlength="120">
+            <span class="field-error" role="alert">Informe o local do evento.</span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="ev-audience">Público estimado</label>
+            <input class="input" id="ev-audience" type="number" min="1" max="200000" placeholder="Ex.: 500" required>
+            <span class="field-error" role="alert">Informe um número válido de pessoas.</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Materiais esperados</span>
+            <div class="chip-grid" id="ev-materials-grid" role="group" aria-label="Materiais esperados"></div>
+            <span class="field-error" id="ev-materials-error" role="alert" style="display:block">Selecione ao menos um material.</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Necessidade da coleta</span>
+            <div class="stack-tight" id="ev-need-options" role="group" aria-label="Momento da coleta"></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Fotos do material ou do local</span>
+            <div id="ev-photos-field"></div>
+          </div>
+          <button class="btn btn-primary" type="submit">Solicitar operação</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Empresa — Grande volume -->
+    <section class="screen" id="screen-empresa-bulk" aria-label="Coleta de grande volume">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Grande volume</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <form id="empresa-bulk-form" class="stack" novalidate>
+          <div class="field">
+            <label class="field-label" for="bulk-company">Empresa</label>
+            <input class="input" id="bulk-company" type="text" required maxlength="80">
+          </div>
+          <div class="field">
+            <label class="field-label" for="bulk-unit">Unidade</label>
+            <input class="input" id="bulk-unit" type="text" maxlength="80">
+          </div>
+          <div class="field">
+            <label class="field-label" for="bulk-quantity">Quantidade estimada (kg)</label>
+            <input class="input" id="bulk-quantity" type="number" min="1" max="999999" placeholder="Ex.: 5000" required>
+            <span class="field-error" role="alert">Informe a quantidade estimada em kg.</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Tipos de materiais</span>
+            <div class="chip-grid" id="bulk-materials-grid" role="group" aria-label="Tipos de materiais"></div>
+            <span class="field-error" id="bulk-materials-error" role="alert" style="display:block">Selecione ao menos um material.</span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="bulk-points">Número de pontos de coleta</label>
+            <input class="input" id="bulk-points" type="number" min="1" max="500" value="1" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="bulk-period">Período</label>
+            <select class="input" id="bulk-period">
+              <option value="Pontual">Pontual</option>
+              <option value="Semanal">Semanal</option>
+              <option value="Mensal">Mensal</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">Fotos do material</span>
+            <div id="bulk-photos-field"></div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="bulk-notes">Observações</label>
+            <textarea class="input" id="bulk-notes" maxlength="200"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="bulk-contact">Contato</label>
+            <input class="input" id="bulk-contact" type="text" placeholder="Nome e telefone/e-mail" required maxlength="120">
+            <span class="field-error" role="alert">Informe um contato para retorno.</span>
+          </div>
+          <button class="btn btn-primary" type="submit">Solicitar orçamento</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Empresa — Acompanhamento -->
+    <section class="screen" id="screen-empresa-tracking" aria-label="Acompanhamento da coleta">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)" data-role="empresa-tracking-protocol">Coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card">
+          <h3>Linha do tempo</h3>
+          <div id="empresa-tracking-timeline"></div>
+        </div>
+        <div class="card">
+          <dl class="summary-list" id="empresa-tracking-details"></dl>
+        </div>
+        <div class="card">
+          <h3>Registro fotográfico</h3>
+          <p class="text-xs text-muted">Comparativo entre o material na origem e no momento da coleta.</p>
+          <div id="empresa-tracking-photos"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Empresa — Lista de coletas -->
+    <section class="screen" id="screen-empresa-collections" aria-label="Coletas da empresa">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Coletas</span></div>
+        <button class="header-back" data-action="navigate" data-target="empresa-collection-type" aria-label="Nova coleta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+      </header>
+      <div class="screen-body stack" id="empresa-collections-list"></div>
+      <nav class="bottom-nav" aria-label="Navegação da empresa">
+        <button class="bottom-nav-item" data-nav-target="empresa-dashboard" data-action="navigate" data-target="empresa-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-collections" data-action="navigate" data-target="empresa-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-report" data-action="navigate" data-target="empresa-report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l3 3v17H6V2Z"/><path d="M15 2v3h3"/><path d="M9 12h6M9 16h6"/></svg>Relatórios</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-profile" data-action="navigate" data-target="empresa-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Empresa — Impacto -->
+    <section class="screen" id="screen-empresa-impact" aria-label="Impacto da empresa">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Impacto da Empresa</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="impact-summary">
+          <h3>Resumo geral</h3>
+          <div class="kpi-grid" id="empresa-impact-kpis"></div>
+        </div>
+        <div class="card">
+          <h3>Materiais coletados</h3>
+          <div id="empresa-impact-materials"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Empresa — Relatório -->
+    <section class="screen" id="screen-empresa-report" aria-label="Relatório de reciclagem">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Relatório de Reciclagem</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card">
+          <h3 data-role="report-company">Empresa Verde Ltda.</h3>
+          <p class="text-sm text-muted" data-role="report-period">Período: Agosto/2026</p>
+          <div class="kpi-grid" id="report-kpis"></div>
+        </div>
+        <div class="card">
+          <h3>Impacto social</h3>
+          <div class="kpi-grid" id="report-social-kpis"></div>
+        </div>
+        <button class="btn btn-primary" type="button" data-action="view-report">Visualizar relatório</button>
+        <button class="btn btn-outline" type="button" data-action="simulate-export">Simular exportação PDF</button>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação da empresa">
+        <button class="bottom-nav-item" data-nav-target="empresa-dashboard" data-action="navigate" data-target="empresa-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-collections" data-action="navigate" data-target="empresa-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-report" data-action="navigate" data-target="empresa-report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l3 3v17H6V2Z"/><path d="M15 2v3h3"/><path d="M9 12h6M9 16h6"/></svg>Relatórios</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-profile" data-action="navigate" data-target="empresa-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Empresa — Serviços -->
+    <section class="screen" id="screen-empresa-services" aria-label="Serviços do ReciclApp">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Serviços</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack" id="empresa-services-list"></div>
+    </section>
+
+    <!-- Empresa — Perfil -->
+    <section class="screen" id="screen-empresa-profile" aria-label="Perfil da empresa">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Perfil</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card card-row">
+          <div class="card-row" style="gap:var(--space-3)">
+            <span class="avatar" data-role="empresa-avatar">E</span>
+            <div><strong data-role="empresa-profile-name">—</strong><div class="text-xs text-muted">Perfil Empresa · cliente pagante</div></div>
+          </div>
+        </div>
+        <button class="btn btn-outline" type="button" data-action="navigate" data-target="empresa-services">Ver serviços e modelo comercial</button>
+        <button class="btn btn-outline" type="button" data-action="logout">Sair e trocar de perfil</button>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação da empresa">
+        <button class="bottom-nav-item" data-nav-target="empresa-dashboard" data-action="navigate" data-target="empresa-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-collections" data-action="navigate" data-target="empresa-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-report" data-action="navigate" data-target="empresa-report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l3 3v17H6V2Z"/><path d="M15 2v3h3"/><path d="M9 12h6M9 16h6"/></svg>Relatórios</button>
+        <button class="bottom-nav-item" data-nav-target="empresa-profile" data-action="navigate" data-target="empresa-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- ================================================================
+         PERFIL 3 — CATADOR
+    ================================================================= -->
+
+    <section class="screen" id="screen-catador-home" aria-label="Início do catador">
+      <header class="app-header">
+        <div class="app-header-title">
+          <span class="app-header-greeting" data-role="catador-greeting">Olá!</span>
+          <span class="app-header-subtitle">Novas oportunidades esperam por você.</span>
+        </div>
+        <div class="app-header-actions">
+          <button class="header-back notif-dot" data-action="navigate" data-target="notifications" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg></button>
+        </div>
+      </header>
+      <div class="screen-body stack-loose">
+        <div class="card card-row">
+          <span class="text-sm" style="font-weight:var(--fw-medium)">Disponível para coletas</span>
+          <button class="toggle" id="catador-availability-toggle" role="switch" aria-checked="true" aria-label="Disponível para coletas"></button>
+        </div>
+        <div>
+          <div class="section-title-row"><h3>Coletas próximas</h3></div>
+          <div class="fake-map" style="margin-bottom:var(--space-4)" aria-hidden="true">
+            <div class="fake-map-road" style="left:0;right:0;top:46%;height:8px"></div>
+            <div class="fake-map-road" style="top:0;bottom:0;left:64%;width:8px"></div>
+            <span class="fake-map-pin is-self" style="left:30%;top:56%" title="Você"></span>
+            <span class="fake-map-pin" style="left:52%;top:34%" title="Coleta disponível"></span>
+            <span class="fake-map-pin" style="left:74%;top:64%" title="Coleta disponível"></span>
+          </div>
+          <div class="stack" id="catador-opportunities-list"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação do catador">
+        <button class="bottom-nav-item" data-nav-target="catador-home" data-action="navigate" data-target="catador-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="catador-collections" data-action="navigate" data-target="catador-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="catador-earnings" data-action="navigate" data-target="catador-earnings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>Ganhos</button>
+        <button class="bottom-nav-item" data-nav-target="catador-profile" data-action="navigate" data-target="catador-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Catador — Detalhes da coleta -->
+    <section class="screen" id="screen-catador-detail" aria-label="Detalhes da coleta">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)" data-role="catador-detail-protocol">Coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card" id="catador-detail-card"></div>
+        <div class="card">
+          <h3>Como o material está</h3>
+          <div id="catador-detail-photos"></div>
+        </div>
+        <button class="btn btn-primary" type="button" id="catador-detail-action">Aceitar coleta</button>
+      </div>
+    </section>
+
+    <!-- Catador — Registrar coleta -->
+    <section class="screen" id="screen-catador-register" aria-label="Registrar coleta">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Registrar coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <div class="card card-tight" style="margin-bottom:var(--space-4)">
+          <div id="reg-origin-photos"></div>
+        </div>
+        <form id="catador-register-form" class="stack" novalidate>
+          <div class="field">
+            <label class="field-label" for="reg-weight">Peso coletado (kg)</label>
+            <input class="input" id="reg-weight" type="number" step="0.1" min="0.1" max="99999" placeholder="Ex.: 21,4" required>
+            <span class="field-error" role="alert">Informe o peso coletado.</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Qualidade</span>
+            <div class="stack-tight" id="reg-quality-options" role="group" aria-label="Qualidade do material"></div>
+          </div>
+          <div class="field">
+            <span class="field-label">Fotos no recolhimento</span>
+            <div id="reg-photos-field"></div>
+            <span class="field-error" id="reg-photos-error" role="alert" style="display:block">Registre ao menos uma foto do material coletado.</span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-notes">Observação</label>
+            <textarea class="input" id="reg-notes" placeholder="Ex.: Material separado corretamente." maxlength="200"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Finalizar coleta</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Catador — Resultado -->
+    <section class="screen" id="screen-catador-result" aria-label="Coleta registrada">
+      <div class="screen-body center-col" style="justify-content:center;flex:1">
+        <div class="result-hero">
+          <h1>Coleta registrada!</h1>
+        </div>
+        <div class="card" style="width:100%">
+          <div class="kpi-grid">
+            <div class="kpi-card"><span class="kpi-value" data-role="catador-result-weight">—</span><span class="kpi-label">Coletados</span></div>
+            <div class="kpi-card"><span class="kpi-value" data-role="catador-result-quality">—</span><span class="kpi-label">Qualidade</span></div>
+          </div>
+          <div class="card-tight" style="margin-top:var(--space-4);background:var(--color-surface-alt);border-radius:var(--radius-md)">
+            <span class="text-xs text-muted">Valor estimado (dado demonstrativo)</span>
+            <div class="kpi-value" data-role="catador-result-value" style="margin-top:2px">—</div>
+          </div>
+        </div>
+        <p class="text-muted text-center" style="margin-top:var(--space-5)">Mais uma coleta. Mais material recuperado.</p>
+        <button class="btn btn-primary" type="button" data-action="navigate" data-target="catador-home" style="margin-top:var(--space-4)">Voltar ao início</button>
+      </div>
+    </section>
+
+    <!-- Catador — Lista de coletas -->
+    <section class="screen" id="screen-catador-collections" aria-label="Coletas do catador">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Coletas</span></div>
+      </header>
+      <div class="screen-body stack" id="catador-collections-list"></div>
+      <nav class="bottom-nav" aria-label="Navegação do catador">
+        <button class="bottom-nav-item" data-nav-target="catador-home" data-action="navigate" data-target="catador-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="catador-collections" data-action="navigate" data-target="catador-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="catador-earnings" data-action="navigate" data-target="catador-earnings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>Ganhos</button>
+        <button class="bottom-nav-item" data-nav-target="catador-profile" data-action="navigate" data-target="catador-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Catador — Ganhos / histórico -->
+    <section class="screen" id="screen-catador-earnings" aria-label="Ganhos e histórico">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Ganhos</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="kpi-grid" id="catador-earnings-kpis"></div>
+        <div class="card">
+          <h3>Histórico de coletas</h3>
+          <div class="stack" id="catador-earnings-history"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação do catador">
+        <button class="bottom-nav-item" data-nav-target="catador-home" data-action="navigate" data-target="catador-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="catador-collections" data-action="navigate" data-target="catador-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="catador-earnings" data-action="navigate" data-target="catador-earnings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>Ganhos</button>
+        <button class="bottom-nav-item" data-nav-target="catador-profile" data-action="navigate" data-target="catador-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Catador — Perfil -->
+    <section class="screen" id="screen-catador-profile" aria-label="Perfil do catador">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Perfil</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card card-row">
+          <div class="card-row" style="gap:var(--space-3)">
+            <span class="avatar" data-role="catador-avatar">C</span>
+            <div><strong data-role="catador-profile-name">—</strong><div class="text-xs text-muted">Perfil Catador · gratuito</div></div>
+          </div>
+        </div>
+        <button class="btn btn-outline" type="button" data-action="logout">Sair e trocar de perfil</button>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação do catador">
+        <button class="bottom-nav-item" data-nav-target="catador-home" data-action="navigate" data-target="catador-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="catador-collections" data-action="navigate" data-target="catador-collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Coletas</button>
+        <button class="bottom-nav-item" data-nav-target="catador-earnings" data-action="navigate" data-target="catador-earnings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>Ganhos</button>
+        <button class="bottom-nav-item" data-nav-target="catador-profile" data-action="navigate" data-target="catador-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+  </main>
+
+  <!-- ======================= MODAL DE CONFIRMAÇÃO (reutilizável) ======================= -->
+  <div class="modal-overlay" id="modal-confirm" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-confirm-title">
+    <div class="modal-box">
+      <div class="modal-handle" aria-hidden="true"></div>
+      <h2 id="modal-confirm-title" data-role="confirm-title">Confirmar ação?</h2>
+      <dl class="summary-list" data-role="confirm-list"></dl>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" data-role="cancel-action" data-action="close-modal" data-modal="modal-confirm">Voltar</button>
+        <button class="btn btn-primary" type="button" data-role="confirm-action">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= VISUALIZADOR DE FOTO ======================= -->
+  <div class="photo-viewer" id="photo-viewer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Foto do material ampliada">
+    <button class="photo-viewer-close" type="button" aria-label="Fechar foto">×</button>
+    <img alt="Foto do material ampliada">
+  </div>
+</div>
+
+
+<script src="js/utils.js"></script>
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/router.js"></script>
+<script src="js/components.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/usuario.js"></script>
+<script src="js/empresa.js"></script>
+<script src="js/catador.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
