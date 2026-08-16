@@ -25,10 +25,11 @@ const ReciclEmpresa = (() => {
 
   function computeImpact() {
     const empresaCollections = ReciclState.getCollectionsByProfile('empresa');
-    const done = empresaCollections.filter((c) => c.status === 'concluida');
+    // Só entra no impacto o que foi validado na organização.
+    const done = empresaCollections.filter((c) => c.status === 'validado');
     const baseline = ReciclData.EMPRESA_BASELINE;
 
-    const kg = baseline.kg + done.reduce((sum, c) => sum + (c.weightFinal || 0), 0);
+    const kg = baseline.kg + done.reduce((sum, c) => sum + (c.weightValidated || c.weightFinal || 0), 0);
     const collections = baseline.collections + empresaCollections.length;
     const doneQualitySum = done.reduce((sum, c) => sum + (c.quality || 0), 0);
     const quality = done.length
@@ -40,9 +41,105 @@ const ReciclEmpresa = (() => {
     return { kg, quality, collections, collectors, events };
   }
 
+  /**
+   * Selo de Sustentabilidade: combina volume validado com consistência —
+   * retiradas feitas dentro da janela de SLA.
+   */
+  function getSealSnapshot() {
+    const validated = ReciclState.getCollectionsByProfile('empresa').filter((c) => c.status === 'validado');
+    const baseline = ReciclData.EMPRESA_BASELINE;
+    const totalKg = baseline.kg + validated.reduce((sum, c) => sum + (c.weightValidated || c.weightFinal || 0), 0);
+
+    const withSla = validated.filter((c) => c.slaDueAt);
+    const onTime = withSla.filter((c) => ReciclAgenda.wasCollectedOnTime(c)).length;
+    const punctuality = withSla.length ? Math.round((onTime / withSla.length) * 100) : 100;
+
+    return { ...ReciclData.calculateSeal(totalKg, punctuality), totalKg, punctuality };
+  }
+
+  function renderSealCard(container) {
+    const seal = getSealSnapshot();
+    container.innerHTML = '';
+    container.appendChild(el('div', { class: 'seal-card' }, [
+      el('div', { class: 'seal-badge', style: `--seal-color:${seal.current.color}` }, [
+        el('span', { class: 'seal-badge-icon', html: SEAL_ICON, 'aria-hidden': 'true' }),
+      ]),
+      el('div', { class: 'seal-info' }, [
+        el('span', { class: 'seal-label', text: 'Selo de Sustentabilidade' }),
+        el('strong', { class: 'seal-tier', text: seal.current.label }),
+        el('span', { class: 'text-xs text-muted', text: `${formatKg(seal.totalKg)} validados · ${formatPercent(seal.punctuality)} no prazo` }),
+      ]),
+    ]));
+
+    if (seal.next) {
+      const missing = [];
+      if (seal.kgToNext > 0) missing.push(`${formatKg(seal.kgToNext)}`);
+      if (seal.punctualityToNext > 0) missing.push(`+${seal.punctualityToNext}% de pontualidade`);
+      const progress = Math.min(100, Math.round((seal.totalKg / seal.next.minKg) * 100));
+
+      container.appendChild(el('div', { class: 'seal-progress' }, [
+        el('div', { class: 'stat-bar-track' }, [
+          el('span', { class: 'stat-bar-fill', style: `width:${progress}%;background:${seal.next.color}` }),
+        ]),
+        el('span', {
+          class: 'text-xs text-muted',
+          text: missing.length
+            ? `Faltam ${missing.join(' e ')} para o selo ${seal.next.label}.`
+            : `Você já atingiu os critérios do selo ${seal.next.label}.`,
+        }),
+      ]));
+    } else {
+      container.appendChild(el('span', { class: 'text-xs text-muted', text: 'Categoria máxima atingida. Mantenha a consistência para conservá-la.' }));
+    }
+  }
+
+  const SEAL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.6 5.6 6.1.8-4.5 4.2 1.2 6.1L12 15.8 6.6 18.7l1.2-6.1L3.3 8.4l6.1-.8L12 2Z"/></svg>';
+
+  /** Card do contrato: frequência vigente, próxima coleta e SLA em aberto. */
+  function renderContractCard(container) {
+    const { contract } = ReciclState.appState;
+    container.innerHTML = '';
+    if (!contract || !contract.active) {
+      container.appendChild(el('p', { class: 'text-sm text-muted mb-0', text: 'Nenhum contrato ativo.' }));
+      return;
+    }
+
+    const frequency = ReciclAgenda.getFrequency(contract.frequency);
+    const openOrder = ReciclState.appState.collections.find(
+      (item) => item.origin === 'contrato' && item.status !== 'validado',
+    );
+
+    container.appendChild(el('div', { class: 'card-row' }, [
+      el('div', {}, [
+        el('span', { class: 'text-xs text-muted', text: 'Frequência contratada' }),
+        el('strong', { class: 'contract-frequency', text: frequency.label }),
+      ]),
+      el('button', {
+        class: 'btn btn-outline btn-sm btn-auto', type: 'button',
+        text: 'Alterar', onClick: () => ReciclRouter.navigate('empresa-frequency'),
+      }),
+    ]));
+
+    if (openOrder) {
+      const sla = ReciclAgenda.getSlaStatus(openOrder);
+      container.appendChild(el('div', { class: 'contract-sla' }, [
+        el('span', { class: `badge ${sla ? sla.tone : 'badge-turquesa'}`, text: sla ? sla.label : 'Em aberto' }),
+        el('span', { class: 'text-xs text-muted', text: `Coleta #${openOrder.protocol} · ${ReciclComponents.STATUS_LABELS[openOrder.status]?.label || openOrder.status}` }),
+      ]));
+    } else {
+      container.appendChild(el('p', {
+        class: 'text-xs text-muted mb-0',
+        style: 'margin-top:8px',
+        text: `Próxima coleta prevista para ${formatDate(contract.nextTriggerDate)}.`,
+      }));
+    }
+  }
+
   // ---------- Dashboard ----------
   function renderDashboard() {
     document.querySelector('[data-role="empresa-greeting"]').textContent = `Olá, ${currentOrgName()}.`;
+    renderSealCard(document.getElementById('empresa-seal'));
+    renderContractCard(document.getElementById('empresa-contract'));
     const impact = computeImpact();
     ReciclComponents.renderKpis(document.getElementById('empresa-dashboard-kpis'), [
       { value: formatKg(impact.kg), label: 'Reciclados' },
@@ -62,6 +159,45 @@ const ReciclEmpresa = (() => {
         onAction: () => ReciclRouter.navigate('empresa-collection-type'),
       },
     });
+  }
+
+  // ---------- Frequência do contrato ----------
+  function renderFrequencyScreen() {
+    const { contract } = ReciclState.appState;
+    const container = document.getElementById('empresa-frequency-options');
+    const current = contract?.frequency;
+
+    ReciclComponents.renderOptionList(container, ReciclData.FREQUENCIES, current, (id) => {
+      if (!contract) return;
+      ReciclState.updateContract({
+        frequency: id,
+        nextTriggerDate: ReciclAgenda.calculateNextTrigger(
+          contract.lastTriggerDate ? new Date(contract.lastTriggerDate) : new Date(), id,
+        ),
+      });
+      ReciclComponents.showToast(`Frequência alterada para: ${ReciclAgenda.getFrequency(id).label}.`, 'success');
+      renderFrequencyScreen();
+    });
+
+    const summary = document.getElementById('empresa-frequency-summary');
+    summary.innerHTML = '';
+    if (contract) {
+      summary.appendChild(el('p', {
+        class: 'text-sm text-muted mb-0',
+        text: `Próxima coleta prevista para ${formatDate(contract.nextTriggerDate)}. Ao vencer, abre-se uma janela de ${ReciclData.SLA_BUSINESS_DAYS} dias úteis para a retirada.`,
+      }));
+    }
+  }
+
+  /** Atalho de demonstração: evita esperar o prazo real vencer durante o pitch. */
+  function simulateTrigger() {
+    const collection = ReciclAgenda.forceTriggerNow();
+    if (!collection) {
+      ReciclComponents.showToast('Já existe uma coleta em aberto para este contrato.', 'info');
+      return;
+    }
+    ReciclComponents.showToast('Prazo cumprido: coleta aberta e disponível no mapa dos catadores.', 'success');
+    ReciclRouter.navigate('empresa-tracking', { id: collection.id });
   }
 
   // ---------- Coleta esporádica ----------
@@ -388,6 +524,7 @@ const ReciclEmpresa = (() => {
 
   function init() {
     ReciclRouter.onEnter('empresa-dashboard', renderDashboard);
+    ReciclRouter.onEnter('empresa-frequency', renderFrequencyScreen);
     ReciclRouter.onEnter('empresa-sporadic', renderSporadicForm);
     ReciclRouter.onEnter('empresa-event', renderEventForm);
     ReciclRouter.onEnter('empresa-bulk', renderBulkForm);
@@ -403,5 +540,5 @@ const ReciclEmpresa = (() => {
     document.getElementById('empresa-bulk-form').addEventListener('submit', handleBulkSubmit);
   }
 
-  return { init, viewReport, simulateExport };
+  return { init, viewReport, simulateExport, simulateTrigger, getSealSnapshot, renderSealCard };
 })();

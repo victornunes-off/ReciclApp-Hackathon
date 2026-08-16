@@ -665,6 +665,60 @@ textarea.input {
 .option-select strong { color: var(--color-ink); font-size: var(--fs-base); }
 .option-select span { color: var(--color-text-muted); font-size: var(--fs-xs); }
 
+/* ---------- Selo de Sustentabilidade ---------- */
+.seal-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.seal-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--seal-color) 16%, transparent);
+  border: 2px solid var(--seal-color);
+  color: var(--seal-color);
+}
+.seal-badge-icon svg { width: 26px; height: 26px; }
+.seal-info { display: flex; flex-direction: column; min-width: 0; }
+.seal-label {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.seal-tier {
+  font-size: var(--fs-lg);
+  color: var(--color-petroleo);
+  line-height: 1.2;
+}
+.seal-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+/* ---------- Contrato / SLA ---------- */
+.contract-frequency {
+  display: block;
+  color: var(--color-petroleo);
+  font-size: var(--fs-md);
+}
+.contract-sla {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
 /* ---------- Fotos do material ---------- */
 .photo-grid {
   display: grid;
@@ -801,6 +855,26 @@ textarea.input {
 }
 .fake-map-pin.is-self {
   background: var(--color-petroleo);
+}
+
+/* Rota traçada até a coleta mais próxima */
+.fake-map-route {
+  position: absolute;
+  background: var(--color-turquesa);
+  border-radius: var(--radius-pill);
+  opacity: 0.75;
+}
+
+.fake-map-legend {
+  position: absolute;
+  left: var(--space-2);
+  bottom: var(--space-2);
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--color-petroleo);
 }
 
 /* ---------- Confirmation dialog list ---------- */

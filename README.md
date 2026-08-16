@@ -3,7 +3,7 @@
 **Conecta. Coleta. Transforma.**
 *O que sobra para você pode gerar valor para alguém.*
 
-Protótipo navegável do ReciclApp — uma plataforma de conexão e gestão de coletas de recicláveis entre usuários, empresas e catadores. Desenvolvido para o hackathon **"Origem Limpa: Mais Recicláveis e Menos Rejeito na Fonte"**.
+Protótipo navegável do ReciclApp — solução **B2B** que conecta grandes geradores (condomínios, residenciais, empresas e escolas com CNPJ) a catadores autônomos, e garante a destinação do material às organizações de catadores de Porto Velho. Desenvolvido para o hackathon **"Origem Limpa: Mais Recicláveis e Menos Rejeito na Fonte"**.
 
 > 📄 **[CONTEXTO.md](CONTEXTO.md)** — estado atual, decisões tomadas (e o porquê), bugs corrigidos e pendências.
 
@@ -15,11 +15,25 @@ Protótipo navegável do ReciclApp — uma plataforma de conexão e gestão de c
 
 Melhorar o aproveitamento e a qualidade dos materiais recicláveis desde a origem, conectando facilmente:
 
-- **Usuários** que querem descartar materiais esporadicamente;
-- **Empresas** que precisam organizar coletas pontuais, para eventos ou grandes volumes (foco comercial do MVP);
-- **Catadores** que recebem e realizam as oportunidades de coleta.
+- **Grandes geradores** (condomínios, residenciais, empresas e escolas com CNPJ) que contratam o serviço e assumem, em contrato, a separação primária do material;
+- **Catadores autônomos** que recebem as oportunidades no mapa e realizam a retirada;
+- **Organizações de catadores** de Porto Velho, que recebem o material, pesam e **validam** o ciclo.
 
-O fluxo principal de demonstração mostra a jornada completa: uma empresa solicita a coleta de um evento, um catador aceita e registra o resultado, e a empresa acompanha o impacto em tempo real.
+### O ciclo completo
+
+```text
+CONTRATO       cliente escolhe a frequência (7 / 15 / 30 / 60 dias)
+   ↓
+MOTOR          prazo vence → abre a ordem de coleta → janela de 5 DIAS ÚTEIS
+   ↓
+CATADOR        fica disponível → vê o ponto no mapa + rota → aceita → retira + foto
+   ↓
+ORGANIZAÇÃO    recebe, pesa na balança → é a PESAGEM que valida o ciclo
+   ↓
+CLIENTE        dashboard e Selo de Sustentabilidade atualizados com o peso real
+```
+
+O ponto-chave: **a coleta só conta depois de validada na organização**. O peso declarado pelo catador é estimativa; o peso oficial é o da balança da organização.
 
 ## Tecnologias
 
@@ -51,13 +65,14 @@ reciclapp/
 ├── js/
 │   ├── utils.js               # Formatação, validação, helpers de DOM seguro
 │   ├── data.js                 # Dados fictícios e constantes de domínio
+│   ├── agenda.js                # Motor de agendamento: frequência e SLA de 5 dias úteis
 │   ├── state.js                 # Estado centralizado + persistência em localStorage
 │   ├── router.js                 # Navegação entre telas (mostra/oculta seções)
 │   ├── components.js              # Componentes de UI reutilizáveis
 │   ├── photos.js                   # Captura, compressão e galerias de fotos
-│   ├── usuario.js                  # Lógica do perfil Usuário
 │   ├── empresa.js                   # Lógica do perfil Empresa
 │   ├── catador.js                    # Lógica do perfil Catador
+│   ├── organizacao.js                 # Perfil Organização: pesagem e validação
 │   └── app.js                         # Inicialização, login simulado, modo demo
 │
 └── assets/
@@ -111,34 +126,37 @@ Em ambos os casos o conteúdo e a navegação são idênticos: header fixo, corp
 
 ## Perfis disponíveis
 
-Na tela inicial, escolha um dos três perfis. Não há autenticação real — qualquer nome, e-mail válido (formato) e senha com 4+ caracteres são aceitos.
+Na tela inicial, escolha um dos perfis. Não há autenticação real — qualquer nome, e-mail válido (formato) e senha com 4+ caracteres são aceitos.
 
 | Perfil | Acesso | Objetivo |
 |---|---|---|
-| **Usuário** | Gratuito | Solicitar coletas esporádicas pessoais |
-| **Empresa** | Cliente pagante (MVP comercial) | Coleta esporádica, eventos e grandes volumes, com dashboard e relatórios |
-| **Catador** | Gratuito | Receber, aceitar e registrar oportunidades de coleta |
+| **Empresa / Gerador** | Cliente pagante | Contrato recorrente, coletas avulsas, dashboard, selo e relatórios |
+| **Catador** | Gratuito | Ficar disponível, ver o mapa, retirar o material |
+| **Organização** | Gratuito | Pesar o material recebido e validar o ciclo |
 
 ## Modo demonstração
 
-Na tela inicial, o botão **"Iniciar demonstração"** carrega um cenário pronto e loga automaticamente como **Empresa Verde Ltda.**, ideal para apresentações.
+Na tela inicial, o botão **"Iniciar demonstração"** carrega um cenário pronto — contrato quinzenal ativo, histórico já validado e selo **Ouro** — e loga automaticamente como **Condomínio Parque das Águas**.
 
-Fluxo sugerido para o pitch (empresa → catador → empresa):
+### Roteiro sugerido para o pitch (ciclo completo)
 
-1. Como Empresa Verde Ltda., toque em **Nova coleta → Coleta para evento** e solicite a coleta da *Expo Rondônia 2026*. **Anexe uma foto do material** — é ela que documenta a condição na origem.
-2. Toque em **Sair e trocar de perfil**, escolha **Catador** — o formulário de login já vem preenchido com "João da Silva" (modo demo). Basta tocar em **Entrar**.
-3. Na tela inicial do catador, toque na oportunidade da Empresa Verde: repare que **a foto enviada pela empresa aparece antes do aceite**. Siga em **Aceitar coleta → Iniciar coleta → Registrar coleta**. Informe o peso (ex.: 326), a qualidade (Excelente) e **tire a foto do material recolhido** (obrigatória).
-4. Troque novamente para o perfil **Empresa** — o dashboard, o relatório e o acompanhamento já refletem o resultado, agora com o **comparativo fotográfico Origem × Coleta** comprovando o índice de qualidade.
+1. **Cliente** — no dashboard, mostre o **Selo de Sustentabilidade** e o card do contrato com a frequência vigente. Toque em **Alterar** para exibir as periodicidades e, na mesma tela, use **"Simular vencimento do prazo"** (atalho de demonstração) para o motor abrir a coleta com a janela de 5 dias úteis.
+2. **Catador** — saia e entre como *João da Silva* (login já preenchido). A coleta aparece **no mapa com a rota traçada** e com o prazo restante no card. Toque nela → **Aceitar → Iniciar → Registrar**: informe o peso e **tire a foto do material** (obrigatória). Repare que a tela avisa o próximo passo: levar à organização.
+3. **Organização** — saia e entre como *Cooperativa Recicla PVH*. A entrega está na fila **"Aguardando pesagem"**, com a foto e o peso declarado pelo catador. Registre o **peso oficial da balança** e confirme.
+4. **Cliente de volta** — o dashboard já contabiliza o peso **validado**, o selo se atualiza e a próxima coleta é reagendada automaticamente pela frequência.
 
-Esse é o mesmo roteiro descrito no pitch: uma operação de ~300 kg que retorna 326 kg com 94% de qualidade.
-
-O fluxo do **Usuário** (materiais → quantidade → local → confirmação) é independente e avança automaticamente pelos status da coleta (solicitada → catador encontrado → em andamento → concluída) para permitir uma demonstração rápida sem precisar trocar de perfil.
+O fluxo **avulso** (esporádica, evento e grande volume) continua disponível em **"+ Coleta avulsa"** para demandas pontuais fora do contrato.
 
 ## Funcionalidades
 
-- Três perfis completos (Usuário, Empresa, Catador) com navegação inferior por perfil.
-- Solicitação de coleta esporádica (usuário e empresa), coleta para eventos e coleta de grandes volumes (orçamento).
-- Aceite, início e registro de coleta pelo catador (peso e qualidade).
+- Quatro perfis (Empresa/Gerador, Catador, Organização) com navegação inferior própria.
+- **Contrato recorrente** com frequência alterável a qualquer momento (7 / 15 / 30 / 60 dias).
+- **Motor de agendamento** que abre a ordem de coleta no vencimento, com janela de **5 dias úteis** e contagem regressiva.
+- **Selo de Sustentabilidade** (Bronze → Prata → Ouro → Diamante) por volume validado **e** consistência de retiradas no prazo.
+- **Validação por pesagem na organização** — é ela que fecha o ciclo e libera os dados de impacto.
+- **Mapa do catador** com os pontos dentro da janela de SLA e rota traçada (CSS puro, sem API de mapas).
+- Coletas avulsas mantidas: esporádica, evento e grande volume (orçamento).
+- Aceite, início e registro de retirada pelo catador (peso, qualidade e foto).
 - **Registro fotográfico em duas etapas** — foto na origem (solicitação) e foto no recolhimento (catador), com comparativo lado a lado para validar qualidade, volume e acondicionamento.
 - Acompanhamento com linha do tempo de status e notificações simuladas (toast + central de notificações).
 - Dashboards de impacto (usuário e empresa) com KPIs e distribuição de materiais em barras (CSS puro, sem bibliotecas de gráfico).
@@ -156,7 +174,7 @@ As fotos são a prova visual por trás do Índice de Qualidade da Coleta. São c
 
 | Momento | Quem | Onde |
 |---|---|---|
-| **Origem** | Usuário / Empresa | Etapa "Mostre como o material está" (usuário) e campo *Fotos do material* nos formulários da empresa |
+| **Origem** | Cliente / Gerador | Campo *Fotos do material* nos formulários de coleta avulsa |
 | **Recolhimento** | Catador | Tela *Registrar coleta* — **obrigatória**, pois é o que valida o peso e a qualidade informados |
 
 O catador vê a foto da origem antes de aceitar (para saber o que esperar) e novamente na hora de registrar (como referência de comparação). Empresa e usuário veem o comparativo **Origem × Coleta** na tela de acompanhamento. Qualquer foto pode ser tocada para abrir ampliada.
@@ -176,9 +194,11 @@ O catador vê a foto da origem antes de aceitar (para saber o que esperar) e nov
 
 **V2** — backend, banco de dados, autenticação real, geolocalização real, notificações push/WhatsApp, visão computacional real, pagamentos, avaliação de catadores, cooperativas.
 
-**V3** — integração com organizações de catadores, relatórios ESG, API pública, integrações corporativas, indicadores avançados.
+**V3** — relatórios ESG, API pública, integrações corporativas, indicadores avançados, multi-cliente e multi-contrato.
 
-**V4** — integração com políticas públicas, incentivos fiscais, expansão para outras cidades, integração com ecopontos e PEVs.
+**V4 — Ecopontos (PEV) e mídia:** substituição do armazenamento interno dos clientes por estruturas fixas padronizadas instaladas em condomínios e empresas. Esses ecopontos funcionam também como espaço de mídia: marcas parceiras pagam para definir o design e a comunicação visual da estrutura, criando uma **linha de receita adicional** que alia ESG a publicidade estratégica.
+
+**Também mapeado:** integração com políticas públicas, incentivos fiscais e expansão para outras cidades.
 
 ---
 

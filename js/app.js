@@ -5,11 +5,12 @@
 (() => {
   const { el, isValidEmail } = ReciclUtils;
 
-  const PROFILE_LABELS = { empresa: 'empresa', catador: 'catador' };
-  const PROFILE_HOME_SCREEN = { empresa: 'empresa-dashboard', catador: 'catador-home' };
+  const PROFILE_LABELS = { empresa: 'empresa', catador: 'catador', organizacao: 'organização' };
+  const PROFILE_HOME_SCREEN = { empresa: 'empresa-dashboard', catador: 'catador-home', organizacao: 'org-home' };
   const DEMO_PERSONAS = {
-    empresa: { name: 'Ricardo Alves', orgName: 'Empresa Verde Ltda.', email: 'contato@empresaverde.com' },
+    empresa: { name: 'Ricardo Alves', orgName: 'Condomínio Parque das Águas', email: 'sindico@parquedasaguas.com.br' },
     catador: { name: 'João da Silva', email: 'joao.silva@email.com' },
+    organizacao: { name: 'Cooperativa Recicla PVH', orgName: 'Cooperativa Recicla PVH', email: 'contato@reciclapvh.org' },
   };
 
   let pendingProfile = 'empresa';
@@ -23,7 +24,9 @@
   function selectProfile(profile) {
     pendingProfile = profile;
     document.querySelector('[data-role="login-profile-label"]').textContent = PROFILE_LABELS[profile];
-    document.querySelector('[data-role="login-org-field"]').hidden = profile !== 'empresa';
+    const orgField = document.querySelector('[data-role="login-org-field"]');
+    orgField.hidden = profile === 'catador';
+    orgField.querySelector('.field-label').textContent = profile === 'organizacao' ? 'Nome da organização' : 'Nome da empresa';
 
     const form = document.getElementById('login-form');
     form.reset();
@@ -34,7 +37,7 @@
       document.getElementById('login-name').value = persona.name;
       document.getElementById('login-email').value = persona.email;
       document.getElementById('login-password').value = 'demo1234';
-      if (profile === 'empresa') document.getElementById('login-org').value = persona.orgName;
+      if (persona.orgName) document.getElementById('login-org').value = persona.orgName;
     }
 
     ReciclRouter.navigate('login');
@@ -61,9 +64,8 @@
     if (!valid) return;
 
     const user = { name: nameField.value.trim() };
-    if (pendingProfile === 'empresa') {
-      const orgField = document.getElementById('login-org');
-      user.orgName = orgField.value.trim() || user.name;
+    if (pendingProfile === 'empresa' || pendingProfile === 'organizacao') {
+      user.orgName = document.getElementById('login-org').value.trim() || user.name;
     }
 
     ReciclState.setProfile(pendingProfile, user);
@@ -82,8 +84,9 @@
     ReciclState.seedDemoData();
     const persona = DEMO_PERSONAS.empresa;
     ReciclState.setProfile('empresa', { name: persona.name, orgName: persona.orgName });
+    ReciclAgenda.runSchedulingEngine();
     ReciclRouter.resetHistory();
-    ReciclComponents.showToast('Modo demonstração ativado — você está como Empresa Verde Ltda.', 'success');
+    ReciclComponents.showToast('Modo demonstração ativado — você está como Condomínio Parque das Águas.', 'success');
     ReciclRouter.navigate('empresa-dashboard', { profile: 'empresa', replace: true });
   }
 
@@ -154,6 +157,7 @@
     'submit-login-as-guest': () => handleLoginSubmit(null, { skipPassword: true }),
     'view-report': () => ReciclEmpresa.viewReport(),
     'simulate-export': () => ReciclEmpresa.simulateExport(),
+    'simulate-trigger': () => ReciclEmpresa.simulateTrigger(),
     'navigate': (targetEl) => {
       ReciclRouter.navigate(targetEl.dataset.target);
     },
@@ -173,6 +177,7 @@
     ReciclPhotos.init();
     ReciclEmpresa.init();
     ReciclCatador.init();
+    ReciclOrganizacao.init();
 
     ReciclRouter.onEnter('notifications', renderNotifications);
     ReciclRouter.onEnter('classify', () => { document.getElementById('classify-result').hidden = true; });
@@ -182,6 +187,9 @@
     document.addEventListener('click', handleDelegatedClick);
     document.getElementById('login-form').addEventListener('submit', (event) => handleLoginSubmit(event));
     document.getElementById('classify-input').addEventListener('change', handleClassifyChange);
+
+    // O motor de agendamento roda na abertura: se o prazo do contrato venceu, abre a coleta.
+    ReciclAgenda.runSchedulingEngine();
 
     const { currentProfile } = ReciclState.appState;
     if (currentProfile && PROFILE_HOME_SCREEN[currentProfile]) {

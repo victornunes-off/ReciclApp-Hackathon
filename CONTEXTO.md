@@ -9,8 +9,9 @@ Repositório: https://github.com/victornunes-off/ReciclApp-Hackathon
 
 ## 1. O que é
 
-Protótipo navegável do **ReciclApp** — plataforma de conexão e gestão de coletas de recicláveis.
-Feito para o hackathon **"Origem Limpa: Mais Recicláveis e Menos Rejeito na Fonte"**.
+Protótipo navegável do **ReciclApp** — solução **B2B** que conecta grandes geradores a
+catadores autônomos e garante a destinação do material às organizações de catadores de
+Porto Velho. Feito para o hackathon **"Origem Limpa: Mais Recicláveis e Menos Rejeito na Fonte"**.
 
 **Posicionamento:** não é "mais um app de reciclagem". É uma plataforma de conexão e gestão
 de coletas, com cara de startup de tecnologia e economia circular — não de ONG.
@@ -18,8 +19,10 @@ de coletas, com cara de startup de tecnologia e economia circular — não de ON
 - Mensagem principal: *Conecta. Coleta. Transforma.*
 - Mensagem secundária: *O que sobra para você pode gerar valor para alguém.*
 
-**Foco comercial do MVP:** empresas, eventos e grandes volumes (é onde está a sustentabilidade
-financeira). O catador usa de graça; a empresa é o cliente pagante.
+**Cliente-alvo:** condomínios, residenciais, empresas e escolas particulares — sempre com CNPJ.
+O cliente contrata o serviço e assume, em contrato, o compromisso da **separação primária**
+(material limpo e separado nas próprias dependências). Catador e organização usam de graça;
+o gerador é o cliente pagante.
 
 ---
 
@@ -27,39 +30,45 @@ financeira). O catador usa de graça; a empresa é o cliente pagante.
 
 ### Perfis ativos
 
-| Perfil | Situação | Observação |
+| Perfil | Situação | Papel |
 |---|---|---|
-| **Empresa** | ✅ Ativo | Fluxo principal do pitch |
-| **Catador** | ✅ Ativo | Recebe, aceita e registra coletas |
-| **Usuário** | ⛔ Desativado | Comentado no `index.html` (commits `0b60616`, `2261c8f`) |
+| **Empresa / Gerador** | ✅ Ativo | Contrata, define frequência, acompanha impacto e selo |
+| **Catador** | ✅ Ativo | Fica disponível, vê o mapa, retira o material |
+| **Organização** | ✅ Ativo | Pesa o material recebido e **valida** o ciclo |
+| **Usuário (B2C)** | ⛔ Removido | Removido de vez no commit `3e15813` — o produto é B2B |
 
-### Fluxo principal (o do pitch)
+### O ciclo completo
 
 ```
-Empresa → Nova coleta → Evento → preenche + FOTO na origem → solicita
+CONTRATO         cliente escolhe a frequência (7 / 15 / 30 / 60 dias)
    ↓
-Catador → vê a oportunidade (com a foto) → aceita → inicia
+MOTOR (invisível) prazo vence → abre ordem de coleta → janela de 5 DIAS ÚTEIS
    ↓
-Catador → registra 326 kg + qualidade Excelente (94%) + FOTO no recolhimento
+CATADOR          fica disponível → vê o ponto no mapa + rota → aceita → retira + FOTO
    ↓
-Empresa → dashboard atualizado + comparativo fotográfico Origem × Coleta + relatório
+ORGANIZAÇÃO      recebe, pesa na balança → é a PESAGEM que valida o ciclo
+   ↓
+CLIENTE          dashboard e Selo de Sustentabilidade atualizados com o peso real
 ```
 
-Números do roteiro: **326 kg / 94% de qualidade**. A opção "Excelente" foi calibrada
-para exatamente 94% para bater com o pitch.
+O ponto-chave: **a coleta só conta depois de validada na organização**. Peso declarado pelo
+catador é estimativa; peso oficial é o da balança da organização.
 
 ### Funcionalidades entregues
 
-- Três perfis com navegação inferior própria (o de Usuário está desativado)
-- Coleta esporádica, para evento e de grande volume (orçamento)
-- Aceite → início → registro de coleta pelo catador
+- Quatro perfis, cada um com navegação inferior própria
+- **Contrato recorrente** com frequência alterável a qualquer momento
+- **Motor de agendamento** com janela de SLA de 5 dias úteis e contagem regressiva
+- **Selo de Sustentabilidade** por volume validado + consistência (retiradas no prazo)
+- **Validação por pesagem** na organização, fechando o ciclo
+- **Mapa do catador** com pontos dentro da janela e rota traçada (CSS puro)
+- Coletas avulsas mantidas: esporádica, evento e grande volume
 - **Registro fotográfico em duas etapas** (origem e recolhimento) com comparativo
-- Linha do tempo de status, notificações simuladas (toast + central)
+- Linha do tempo de 5 etapas, notificações simuladas (toast + central)
 - Dashboards de impacto com KPIs e barras de materiais em CSS puro
 - Relatório de reciclagem com simulação de exportação em PDF
 - "Identificar material" — classificação por foto **simulada** (sem IA real)
-- Mapa estilizado em CSS (sem API de mapas)
-- Modo demonstração com dados fictícios
+- Modo demonstração com dados fictícios e gatilho manual de vencimento
 - Persistência em `localStorage`
 
 ---
@@ -166,7 +175,40 @@ O favicon alterna sozinho conforme o tema do sistema, via `media="(prefers-color
 O lockup completo já traz a assinatura *Conecta. Coleta. Transforma.*, então a linha de
 tagline separada foi removida do splash para não duplicar.
 
-### 5.7 Modo demonstração
+### 5.7 Contrato recorrente convivendo com coleta avulsa
+
+O contrato recorrente é o modelo principal, mas **esporádica, evento e grande volume
+continuam existindo** como pedido extra.
+
+**Por quê:** serviços B2B reais têm recorrência *e* demanda pontual, e manter os fluxos
+avulsos preserva o roteiro de pitch já pronto (Expo Rondônia). Coletas geradas pelo contrato
+são marcadas com `origin: 'contrato'`; as demais, `origin: 'avulsa'`.
+
+### 5.8 Quem valida é a organização, não o catador
+
+A retirada pelo catador leva a coleta ao status `retirado`, **não** a conclui. O ciclo só
+fecha quando a organização registra o peso na balança (`validado`).
+
+**Por quê:** é o que garante rastreabilidade e impede que o volume seja autodeclarado por
+quem coleta. Impacto, relatório, selo e ganhos do catador contam apenas peso validado —
+`weightValidated`, não `weightFinal`.
+
+### 5.9 Selo de Sustentabilidade: volume **e** consistência
+
+Quatro níveis — Bronze, Prata (500 kg / 60%), Ouro (1500 kg / 80%) e Diamante (3000 kg / 90%).
+A segunda métrica é o percentual de retiradas feitas dentro da janela de SLA.
+
+**Por quê:** premiar só volume beneficiaria o gerador grande e desleixado. Exigir consistência
+alinha o selo ao objetivo do desafio — qualidade na origem, não só quantidade.
+
+### 5.10 Gatilho manual de vencimento (demonstração)
+
+Na tela de frequência há um botão **"Simular vencimento do prazo"**, marcado como demonstração.
+
+**Por quê:** o motor depende de datas reais. Sem esse atalho, seria impossível mostrar o ciclo
+completo numa apresentação de 5 minutos sem esperar dias.
+
+### 5.11 Modo demonstração
 
 O botão "Iniciar demonstração" carrega o cenário e já entra como **Empresa Verde Ltda.**
 Ao trocar de perfil, o formulário de login vem **pré-preenchido** com a persona daquele
@@ -188,34 +230,37 @@ o atrito de digitar no meio do pitch.
 | 4 | `frame-ancestors` ignorado | Essa diretiva de CSP só funciona via header HTTP, não em `<meta>`. Removida |
 | 5 | Opções de qualidade não re-renderizavam | `arguments.callee` dentro de arrow function. Extraído para função nomeada |
 | 6 | Moldura do smartphone ultrapassava a janela | O cálculo de altura não descontava o padding do body. Corrigido com `min()` |
+| 7 | Nome da empresa apagado ao marcar material (2ª ocorrência) | Mesmo padrão do #3, agora no formulário de grande volume. Unificado em `prefillIfEmpty()` |
+| 8 | Data da retirada exibida como ISO cru | `formatDate()` só tratava `YYYY-MM-DD` e concatenava `T00:00:00`, gerando data inválida com ISO completo. Passou a detectar se já há hora |
 
 ---
 
 ## 7. Pendências e pontos de atenção
 
-### 7.1 Resíduo da desativação do perfil Usuário ⚠️
+### 7.1 Onboarding B2B ainda não implementado
 
-O perfil foi desativado **comentando** o botão do splash e as telas `screen-user-home` e
-`screen-user-profile`. Verificado no navegador: **funciona e degrada bem** — quem tivesse
-sessão antiga como `usuario` cai no splash com um aviso no console, sem tela branca.
+O contrato existe no estado (`appState.contract`) e é criado pela semente de demonstração,
+mas **não há tela de contratação**: cadastro com CNPJ, escolha do tipo de gerador
+(condomínio / residencial / empresa / escola) e aceite do compromisso de separação primária.
+Foi deliberadamente adiado nesta rodada.
 
-Mas ficou resíduo:
+### 7.2 Feriados não entram no cálculo de dias úteis
 
-- **9 telas de usuário continuam vivas no DOM** (`user-materials`, `user-quantity`,
-  `user-photos`, `user-location`, `user-confirm`, `user-tracking`, `user-result`,
-  `user-collections`, `user-impact`) — inalcançáveis pela interface, mas carregadas.
-- **`js/usuario.js` continua sendo carregado** e registrando handlers.
-- A navegação inferior dessas telas ainda aponta para `user-home` / `user-profile`,
-  que não existem mais.
-- Console mostra `Tela não encontrada: user-home` em sessões antigas.
-- **Comentário HTML é frágil aqui:** comentários não aninham. Hoje funciona por sorte
-  (o primeiro `-->` encontrado fecha no lugar certo). Se alguém inserir um comentário
-  dentro do bloco comentado, o HTML quebra.
+`addBusinessDays()` pula apenas sábado e domingo. Feriados nacionais e de Rondônia
+contariam como dia útil. Aceitável no protótipo; num sistema real exigiria calendário.
 
-**Decisão pendente:** remover de vez (HTML + `usuario.js` + referências em `app.js`) ou
-reativar. Enquanto estiver comentado, convém não mexer dentro do bloco.
+### 7.3 Um contrato por vez
 
-### 7.2 GitHub Pages não ativado
+O protótipo assume **um único cliente com um contrato** (`appState.contract`). Multi-cliente
+exigiria mover o contrato para uma coleção indexada por cliente.
+
+### 7.4 Favicon do tema escuro
+
+As três tags `<link rel="icon">` apontam para `icon-light.png` — inclusive a de
+`prefers-color-scheme: dark`. Ou seja, `icon-dark.png` está no repositório mas nunca é usado.
+Se foi intencional, dá para remover o arquivo; se não, basta apontar a tag escura para ele.
+
+### 7.5 GitHub Pages não ativado
 
 O projeto é estático e o repositório é público, então dá para ter link ao vivo para os
 jurados abrirem no celular:
@@ -226,11 +271,22 @@ gh api -X POST repos/victornunes-off/ReciclApp-Hackathon/pages -f "source[branch
 
 Ficaria em `https://victornunes-off.github.io/ReciclApp-Hackathon/`. Não ativado ainda.
 
-### 7.3 Campo estruturado de acondicionamento
+### 7.6 Campo estruturado de acondicionamento
 
 Hoje o "modo de acondicionamento" é comprovado **pela foto**. Não existe campo estruturado
 (ex.: *sacos / caixas / fardos / solto*). Se virar dado filtrável no relatório, é fácil
 acrescentar — foi deixado de fora de propósito para não ampliar escopo.
+
+---
+
+## 7-A. Roadmap de expansão (documentado, não implementado)
+
+**Ecopontos (PEV):** substituir o armazenamento interno do cliente por estruturas fixas
+padronizadas instaladas em condomínios e empresas.
+
+**Publicidade institucional:** esses ecopontos funcionam também como mídia — marcas pagam
+para definir o design e a comunicação visual da estrutura, criando uma linha de receita
+adicional que alia ESG a publicidade estratégica.
 
 ---
 
@@ -255,6 +311,8 @@ acrescentar — foi deixado de fora de propósito para não ampliar escopo.
 | 16/08/2026 | Repositório público criado e publicado |
 | 16/08/2026 | Perfil Usuário desativado (comentado) — commits `0b60616`, `2261c8f`, `c5961bb` |
 | 16/08/2026 | Criação deste documento de contexto |
+| 16/08/2026 | Perfil Usuário **removido de vez** (`3e15813`): −642 linhas, CSS órfão limpo, init resiliente a perfil descontinuado |
+| 16/08/2026 | Pivô B2B: contrato recorrente + motor de SLA de 5 dias úteis, perfil Organização com validação por pesagem, Selo de Sustentabilidade e mapa do catador com rota |
 
 ---
 

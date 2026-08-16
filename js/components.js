@@ -9,6 +9,8 @@ const ReciclComponents = (() => {
     solicitada: { label: 'Solicitada', badge: 'badge-warning' },
     catador_encontrado: { label: 'Catador encontrado', badge: 'badge-turquesa' },
     em_andamento: { label: 'Em andamento', badge: 'badge-info' },
+    retirado: { label: 'Retirado — aguardando pesagem', badge: 'badge-warning' },
+    validado: { label: 'Validado', badge: 'badge-success' },
     concluida: { label: 'Concluída', badge: 'badge-success' },
     cancelada: { label: 'Cancelada', badge: 'badge-error' },
     orcamento_solicitado: { label: 'Orçamento solicitado', badge: 'badge-turquesa' },

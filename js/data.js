@@ -93,19 +93,66 @@ const ReciclData = (() => {
     { id: 'reports', title: 'Gestão e relatórios', desc: 'Para acompanhamento e comprovação dos resultados.' },
   ];
 
-  const STATUS_FLOW = ['solicitada', 'catador_encontrado', 'em_andamento', 'concluida'];
+  /* O ciclo só fecha quando a organização de catadores pesa o material —
+     é essa etapa que valida os dados e alimenta o selo do cliente. */
+  const STATUS_FLOW = ['solicitada', 'catador_encontrado', 'em_andamento', 'retirado', 'validado'];
   const STATUS_STEP_LABELS = {
-    solicitada: 'Solicitada',
-    catador_encontrado: 'Catador encontrado',
-    em_andamento: 'Em andamento',
-    concluida: 'Concluída',
+    solicitada: 'Coleta aberta',
+    catador_encontrado: 'Catador a caminho',
+    em_andamento: 'Retirada em andamento',
+    retirado: 'Material retirado',
+    validado: 'Validado na organização',
   };
   const STATUS_STEP_DESCRIPTIONS = {
-    solicitada: 'Estamos procurando um catador disponível.',
+    solicitada: 'Disponível para os catadores da região.',
     catador_encontrado: 'Catador escalado para a coleta.',
     em_andamento: 'Coleta em andamento.',
-    concluida: 'Coleta finalizada com sucesso.',
+    retirado: 'Aguardando pesagem na organização de catadores.',
+    validado: 'Ciclo concluído e impacto contabilizado.',
   };
+
+  /* Periodicidade do contrato. O cliente pode alterar quando quiser. */
+  const FREQUENCIES = [
+    { id: 'semanal', label: '1 vez por semana', hint: 'Coleta a cada 7 dias.', days: 7 },
+    { id: 'quinzenal', label: 'A cada 15 dias', hint: 'Duas coletas por mês.', days: 15 },
+    { id: 'mensal', label: '1 vez por mês', hint: 'Coleta a cada 30 dias.', days: 30 },
+    { id: 'bimestral', label: 'A cada 2 meses', hint: 'Coleta a cada 60 dias.', days: 60 },
+  ];
+
+  const SLA_BUSINESS_DAYS = 5;
+
+  /* Organizações parceiras de Porto Velho (fictícias). */
+  const ORGANIZATIONS = [
+    { id: 'org-recicla-pvh', name: 'Cooperativa Recicla PVH', district: 'Zona Leste' },
+    { id: 'org-mais-vida', name: 'Associação Mais Vida', district: 'Centro' },
+    { id: 'org-rio-madeira', name: 'Coop. Rio Madeira', district: 'Zona Sul' },
+  ];
+
+  /* Selo de Sustentabilidade: volume validado + consistência de retiradas no prazo. */
+  const SEAL_TIERS = [
+    { id: 'bronze', label: 'Bronze', minKg: 0, minPunctuality: 0, color: '#A97142' },
+    { id: 'prata', label: 'Prata', minKg: 500, minPunctuality: 60, color: '#8C9BA5' },
+    { id: 'ouro', label: 'Ouro', minKg: 1500, minPunctuality: 80, color: '#C9A227' },
+    { id: 'diamante', label: 'Diamante', minKg: 3000, minPunctuality: 90, color: '#2FA8A0' },
+  ];
+
+  /**
+   * Retorna o selo atual e o próximo, com o que falta para subir de categoria.
+   * A consistência conta: volume alto com atraso não sobe de nível.
+   */
+  function calculateSeal(totalKg, punctualityPct) {
+    let current = SEAL_TIERS[0];
+    SEAL_TIERS.forEach((tier) => {
+      if (totalKg >= tier.minKg && punctualityPct >= tier.minPunctuality) current = tier;
+    });
+    const next = SEAL_TIERS[SEAL_TIERS.indexOf(current) + 1] || null;
+    return {
+      current,
+      next,
+      kgToNext: next ? Math.max(0, next.minKg - totalKg) : 0,
+      punctualityToNext: next ? Math.max(0, next.minPunctuality - punctualityPct) : 0,
+    };
+  }
 
   const EMPRESA_BASELINE = {
     kg: 1248,
@@ -151,8 +198,13 @@ const ReciclData = (() => {
     STATUS_FLOW,
     STATUS_STEP_LABELS,
     STATUS_STEP_DESCRIPTIONS,
+    FREQUENCIES,
+    SLA_BUSINESS_DAYS,
+    ORGANIZATIONS,
+    SEAL_TIERS,
     EMPRESA_BASELINE,
     CATADOR_BASELINE,
+    calculateSeal,
     getMaterialLabel,
     getMaterialIcon,
     buildCollectionTimelineSteps,

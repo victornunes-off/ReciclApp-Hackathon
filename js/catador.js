@@ -50,19 +50,78 @@ const ReciclCatador = (() => {
       return;
     }
 
-    opportunities.forEach((collection) => {
+    renderOpportunityMap(opportunities);
+
+    opportunities.forEach((collection, index) => {
       const materialsLabel = (collection.materials || []).map((id) => ReciclData.getMaterialLabel(id)).join(' + ');
+      const sla = ReciclAgenda.getSlaStatus(collection);
+      const distance = distanceFor(collection, index);
+
       list.appendChild(el('button', { class: 'collection-card card-clickable', type: 'button', onClick: () => ReciclRouter.navigate('catador-detail', { id: collection.id }) }, [
         el('div', { class: 'collection-card-top' }, [
           el('div', {}, [
             el('div', { class: 'collection-card-title', text: collection.requesterName }),
             el('div', { class: 'collection-card-meta', text: materialsLabel || 'Materiais diversos' }),
           ]),
-          el('span', { class: 'badge badge-turquesa', text: `${(1 + Math.random() * 3).toFixed(1)} km` }),
+          el('span', { class: 'badge badge-turquesa', text: `${distance} km` }),
         ]),
         el('div', { class: 'collection-card-meta', text: `${collection.quantityLabel || 'Estimativa a confirmar'} · #${collection.protocol}` }),
+        sla ? el('span', { class: `badge ${sla.tone}`, text: sla.label }) : null,
       ]));
     });
+  }
+
+  /** Distância estável por coleta (sem sortear a cada render). */
+  function distanceFor(collection, index) {
+    const base = [1.8, 2.4, 3.1, 4.2, 5.0];
+    return base[index % base.length].toFixed(1);
+  }
+
+  /**
+   * Mapa estilizado em CSS: posiciona os pontos com coletas abertas e traça a rota
+   * do catador até o mais próximo. Sem API externa de mapas.
+   */
+  function renderOpportunityMap(opportunities) {
+    const map = document.getElementById('catador-map');
+    map.innerHTML = '';
+
+    // Malha viária simplificada
+    [['left:0;right:0;top:46%;height:8px'], ['top:0;bottom:0;left:64%;width:8px'],
+     ['left:0;right:0;top:78%;height:6px'], ['top:0;bottom:0;left:26%;width:6px']]
+      .forEach(([style]) => map.appendChild(el('span', { class: 'fake-map-road', style })));
+
+    const self = { x: 30, y: 56 };
+    const spots = [{ x: 52, y: 34 }, { x: 74, y: 64 }, { x: 40, y: 84 }, { x: 82, y: 26 }];
+
+    if (opportunities.length) {
+      // Rota até o ponto mais próximo, em dois segmentos (ruas são ortogonais).
+      const target = spots[0];
+      map.appendChild(el('span', {
+        class: 'fake-map-route',
+        style: `left:${Math.min(self.x, target.x)}%;top:${self.y}%;width:${Math.abs(target.x - self.x)}%;height:3px`,
+      }));
+      map.appendChild(el('span', {
+        class: 'fake-map-route',
+        style: `left:${target.x}%;top:${Math.min(self.y, target.y)}%;height:${Math.abs(target.y - self.y)}%;width:3px`,
+      }));
+    }
+
+    map.appendChild(el('span', { class: 'fake-map-pin is-self', style: `left:${self.x}%;top:${self.y}%`, title: 'Você' }));
+    opportunities.slice(0, spots.length).forEach((collection, index) => {
+      const spot = spots[index];
+      map.appendChild(el('span', {
+        class: 'fake-map-pin',
+        style: `left:${spot.x}%;top:${spot.y}%`,
+        title: `${collection.requesterName} — ${distanceFor(collection, index)} km`,
+      }));
+    });
+
+    map.appendChild(el('span', {
+      class: 'fake-map-legend',
+      text: opportunities.length
+        ? `${opportunities.length} coleta(s) na janela de ${ReciclData.SLA_BUSINESS_DAYS} dias úteis`
+        : 'Nenhuma coleta aberta',
+    }));
   }
 
   function toggleAvailability() {
@@ -117,7 +176,7 @@ const ReciclCatador = (() => {
       actionBtn.textContent = 'Registrar coleta';
       actionBtn.className = 'btn btn-primary';
       actionBtn.onclick = () => ReciclRouter.navigate('catador-register', { id: collection.id });
-    } else if (collection.status === 'concluida') {
+    } else if (collection.status === 'retirado' || collection.status === 'validado') {
       actionBtn.textContent = 'Ver resultado';
       actionBtn.className = 'btn btn-outline';
       actionBtn.onclick = () => ReciclRouter.navigate('catador-result', { id: collection.id });
@@ -196,34 +255,60 @@ const ReciclCatador = (() => {
     }
 
     const qualityLevel = ReciclData.QUALITY_LEVELS.find((level) => level.id === selectedQuality) || ReciclData.QUALITY_LEVELS[0];
+    // A retirada não fecha o ciclo: o material segue para pesagem na organização.
     const collection = ReciclState.updateCollection(activeDetailId, {
-      status: 'concluida',
+      status: 'retirado',
       weightFinal: weight,
       quality: qualityLevel.pct,
       qualityLabel: qualityLevel.label,
       photosPickup: [...pickupPhotos],
+      pickedUpAt: new Date().toISOString(),
       collectionNotes: document.getElementById('reg-notes').value.trim(),
     });
 
     ReciclState.addNotification({
       profile: collection.requesterType,
-      title: 'Coleta concluída',
-      body: `${formatKg(weight)} coletados com ${formatPercent(qualityLevel.pct)} de qualidade.`,
+      title: 'Material retirado',
+      body: `${formatKg(weight)} a caminho da organização para pesagem.`,
     });
-    ReciclComponents.showToast('Coleta registrada com sucesso!', 'success');
+    ReciclState.addNotification({
+      profile: 'organizacao',
+      title: 'Material a caminho',
+      body: `${collection.collectorName} retirou ${formatKg(weight)} de ${collection.requesterName}.`,
+    });
+    ReciclComponents.showToast('Retirada registrada! Leve o material à organização.', 'success');
     ReciclRouter.navigate('catador-result', { id: collection.id, replace: true });
   }
 
   // ---------- Resultado ----------
   function renderResult(params) {
     const collection = ReciclState.getCollection(params?.id || activeDetailId);
-    const weight = collection?.weightFinal || 0;
+    const isValidated = collection?.status === 'validado';
+    const weight = (isValidated ? collection.weightValidated : collection?.weightFinal) || 0;
     const quality = collection?.quality || 0;
     const value = weight * 0.45 * (0.7 + quality / 200);
 
     document.querySelector('[data-role="catador-result-weight"]').textContent = weight ? formatKg(weight) : '—';
     document.querySelector('[data-role="catador-result-quality"]').textContent = quality ? formatPercent(quality) : '—';
     document.querySelector('[data-role="catador-result-value"]').textContent = weight ? formatCurrencyBR(value) : '—';
+
+    // Próximo passo do catador: levar o material à organização para pesagem e venda.
+    const nextStep = document.getElementById('catador-result-next');
+    nextStep.innerHTML = '';
+    if (isValidated) {
+      nextStep.appendChild(el('span', { class: 'badge badge-success', text: 'Validado' }));
+      nextStep.appendChild(el('p', { class: 'text-sm text-muted', style: 'margin-top:8px',
+        text: `Peso confirmado por ${collection.organizationName}. Ciclo fechado.` }));
+    } else {
+      nextStep.appendChild(el('span', { class: 'badge badge-warning', text: 'Próximo passo' }));
+      nextStep.appendChild(el('p', { class: 'text-sm', style: 'margin-top:8px',
+        text: 'Leve o material a uma organização de catadores para pesagem e venda. É a pesagem que valida a coleta.' }));
+      const list = el('ul', { class: 'stack-tight' });
+      ReciclData.ORGANIZATIONS.forEach((org) => {
+        list.appendChild(el('li', { class: 'text-xs text-muted', text: `• ${org.name} — ${org.district}` }));
+      });
+      nextStep.appendChild(list);
+    }
   }
 
   // ---------- Lista de coletas do catador ----------
@@ -232,8 +317,8 @@ const ReciclCatador = (() => {
     const collections = myCollections().filter((c) => c.status !== 'solicitada');
     ReciclComponents.renderCollectionList(container, collections, {
       onClick: (collection) => {
-        if (collection.status === 'concluida') ReciclRouter.navigate('catador-result', { id: collection.id });
-        else ReciclRouter.navigate('catador-detail', { id: collection.id });
+        const isFinished = collection.status === 'retirado' || collection.status === 'validado';
+        ReciclRouter.navigate(isFinished ? 'catador-result' : 'catador-detail', { id: collection.id });
       },
       empty: {
         title: 'Nenhuma coleta aceita ainda',
@@ -246,9 +331,10 @@ const ReciclCatador = (() => {
 
   // ---------- Ganhos ----------
   function renderEarnings() {
-    const done = myCollections().filter((c) => c.status === 'concluida');
+    // Só conta o que a organização já validou — é o peso que vale de verdade.
+    const done = myCollections().filter((c) => c.status === 'validado');
     const baseline = ReciclData.CATADOR_BASELINE;
-    const totalKg = baseline.kg + done.reduce((sum, c) => sum + (c.weightFinal || 0), 0);
+    const totalKg = baseline.kg + done.reduce((sum, c) => sum + (c.weightValidated || c.weightFinal || 0), 0);
     const totalCollections = baseline.collections + done.length;
     const avgQuality = done.length
       ? Math.round((baseline.quality * baseline.collections + done.reduce((sum, c) => sum + (c.quality || 0), 0)) / (baseline.collections + done.length))

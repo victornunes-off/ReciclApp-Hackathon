@@ -42,9 +42,11 @@ const ReciclUtils = (() => {
     return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
+  /** Aceita tanto "YYYY-MM-DD" quanto um ISO completo com hora. */
   function formatDate(isoDate) {
     if (!isoDate) return '—';
-    const date = new Date(`${isoDate}T00:00:00`);
+    const hasTime = String(isoDate).includes('T');
+    const date = new Date(hasTime ? isoDate : `${isoDate}T00:00:00`);
     if (Number.isNaN(date.getTime())) return isoDate;
     return date.toLocaleDateString('pt-BR');
   }
@@ -79,6 +81,55 @@ const ReciclUtils = (() => {
     return String(value || '').slice(0, maxLength);
   }
 
+  function startOfDay(date) {
+    const copy = new Date(date);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+  }
+
+  function isWeekend(date) {
+    const day = date.getDay();
+    return day === 0 || day === 6;
+  }
+
+  /** Soma dias úteis (pula sábado e domingo). Feriados ficam fora do escopo do protótipo. */
+  function addBusinessDays(date, businessDays) {
+    const result = startOfDay(date);
+    let added = 0;
+    while (added < businessDays) {
+      result.setDate(result.getDate() + 1);
+      if (!isWeekend(result)) added += 1;
+    }
+    return result;
+  }
+
+  /** Dias úteis restantes até a data (0 = vence hoje, negativo = atrasado). */
+  function businessDaysUntil(isoDate, from = new Date()) {
+    const target = startOfDay(new Date(isoDate));
+    const cursor = startOfDay(from);
+    if (target.getTime() === cursor.getTime()) return 0;
+
+    const isPast = target < cursor;
+    const [start, end] = isPast ? [target, cursor] : [cursor, target];
+    let count = 0;
+    const walker = new Date(start);
+    while (walker < end) {
+      walker.setDate(walker.getDate() + 1);
+      if (!isWeekend(walker)) count += 1;
+    }
+    return isPast ? -count : count;
+  }
+
+  function addDays(date, days) {
+    const result = startOfDay(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  function toISODate(date) {
+    return startOfDay(date).toISOString().slice(0, 10);
+  }
+
   function debounce(fn, wait = 250) {
     let timer = null;
     return (...args) => {
@@ -101,5 +152,10 @@ const ReciclUtils = (() => {
     isFutureOrTodayDate,
     clampText,
     debounce,
+    startOfDay,
+    addBusinessDays,
+    businessDaysUntil,
+    addDays,
+    toISODate,
   };
 })();

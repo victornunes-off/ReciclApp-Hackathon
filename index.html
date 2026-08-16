@@ -48,6 +48,10 @@
             <span class="profile-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8L4 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg></span>
             <span class="profile-option-text"><strong>Catador</strong><span>Quero encontrar oportunidades</span></span>
           </button>
+          <button class="profile-option" type="button" data-action="select-profile" data-profile="organizacao">
+            <span class="profile-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M10 21v-5h4v5"/></svg></span>
+            <span class="profile-option-text"><strong>Organização</strong><span>Quero validar o material recebido</span></span>
+          </button>
         </div>
 
         <div class="demo-cta">
@@ -171,8 +175,10 @@
       </header>
       <div class="screen-body stack-loose">
         <div class="stack">
+          <div class="card" id="empresa-seal"></div>
+          <div class="card card-tight" id="empresa-contract"></div>
           <div class="kpi-grid" id="empresa-dashboard-kpis"></div>
-          <button class="btn btn-primary" type="button" data-action="navigate" data-target="empresa-collection-type">+ Nova coleta</button>
+          <button class="btn btn-primary" type="button" data-action="navigate" data-target="empresa-collection-type">+ Coleta avulsa</button>
           <div class="quick-actions">
             <button class="quick-action" type="button" data-action="navigate" data-target="empresa-sporadic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8H7.5a2 2 0 0 1-2-1.8L4 7Z"/></svg><span>Coleta esporádica</span></button>
             <button class="quick-action" type="button" data-action="navigate" data-target="empresa-event"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Coleta para evento</span></button>
@@ -200,6 +206,25 @@
         <button class="bottom-nav-item" data-nav-target="empresa-report" data-action="navigate" data-target="empresa-report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l3 3v17H6V2Z"/><path d="M15 2v3h3"/><path d="M9 12h6M9 16h6"/></svg>Relatórios</button>
         <button class="bottom-nav-item" data-nav-target="empresa-profile" data-action="navigate" data-target="empresa-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
       </nav>
+    </section>
+
+    <!-- Empresa — Frequência do contrato -->
+    <section class="screen" id="screen-empresa-frequency" aria-label="Frequência de coleta">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Frequência de coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body stack">
+        <p class="text-muted text-sm mb-0">Escolha de quanto em quanto tempo o material acumulado deve ser recolhido. Você pode alterar quando quiser.</p>
+        <div class="stack-tight" id="empresa-frequency-options" role="group" aria-label="Periodicidade"></div>
+        <div class="card card-tight" id="empresa-frequency-summary"></div>
+        <div class="card card-tight" style="background:var(--color-surface-alt)">
+          <span class="badge badge-info">Demonstração</span>
+          <p class="text-xs text-muted" style="margin-top:var(--space-2)">Para não esperar o prazo real vencer durante a apresentação, você pode disparar a coleta agora.</p>
+          <button class="btn btn-outline btn-sm" type="button" data-action="simulate-trigger">Simular vencimento do prazo</button>
+        </div>
+      </div>
     </section>
 
     <!-- Empresa — Tipo de coleta -->
@@ -536,13 +561,7 @@
         </div>
         <div>
           <div class="section-title-row"><h3>Coletas próximas</h3></div>
-          <div class="fake-map" style="margin-bottom:var(--space-4)" aria-hidden="true">
-            <div class="fake-map-road" style="left:0;right:0;top:46%;height:8px"></div>
-            <div class="fake-map-road" style="top:0;bottom:0;left:64%;width:8px"></div>
-            <span class="fake-map-pin is-self" style="left:30%;top:56%" title="Você"></span>
-            <span class="fake-map-pin" style="left:52%;top:34%" title="Coleta disponível"></span>
-            <span class="fake-map-pin" style="left:74%;top:64%" title="Coleta disponível"></span>
-          </div>
+          <div class="fake-map" id="catador-map" style="margin-bottom:var(--space-4)" aria-hidden="true"></div>
           <div class="stack" id="catador-opportunities-list"></div>
         </div>
       </div>
@@ -621,6 +640,7 @@
             <span class="text-xs text-muted">Valor estimado (dado demonstrativo)</span>
             <div class="kpi-value" data-role="catador-result-value" style="margin-top:2px">—</div>
           </div>
+          <div id="catador-result-next" style="margin-top:var(--space-4);text-align:left"></div>
         </div>
         <p class="text-muted text-center" style="margin-top:var(--space-5)">Mais uma coleta. Mais material recuperado.</p>
         <button class="btn btn-primary" type="button" data-action="navigate" data-target="catador-home" style="margin-top:var(--space-4)">Voltar ao início</button>
@@ -683,6 +703,120 @@
       </nav>
     </section>
 
+    <!-- ================================================================
+         PERFIL 4 — ORGANIZAÇÃO DE CATADORES (validação do ciclo)
+    ================================================================= -->
+
+    <section class="screen" id="screen-org-home" aria-label="Início da organização">
+      <header class="app-header">
+        <div class="app-header-title">
+          <span class="app-header-greeting" data-role="org-greeting">Olá!</span>
+          <span class="app-header-subtitle">Material aguardando pesagem.</span>
+        </div>
+        <div class="app-header-actions">
+          <button class="header-back notif-dot" data-action="navigate" data-target="notifications" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg></button>
+        </div>
+      </header>
+      <div class="screen-body stack-loose">
+        <div class="kpi-grid" id="org-home-kpis"></div>
+        <div>
+          <div class="section-title-row"><h3>Entradas para pesagem</h3></div>
+          <div class="stack" id="org-intake-list"></div>
+        </div>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação da organização">
+        <button class="bottom-nav-item" data-nav-target="org-home" data-action="navigate" data-target="org-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="org-history" data-action="navigate" data-target="org-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Histórico</button>
+        <button class="bottom-nav-item" data-nav-target="org-profile" data-action="navigate" data-target="org-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Organização — Pesagem -->
+    <section class="screen" id="screen-org-weigh" aria-label="Registrar pesagem">
+      <header class="app-header">
+        <button class="header-back" data-action="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)" data-role="org-weigh-protocol">Coleta</span></div>
+        <div style="width:40px"></div>
+      </header>
+      <div class="screen-body">
+        <div class="card">
+          <dl class="summary-list" id="org-weigh-info"></dl>
+        </div>
+        <div class="card" style="margin-top:var(--space-4)">
+          <div id="org-weigh-photos"></div>
+        </div>
+        <form id="org-weigh-form" class="stack" style="margin-top:var(--space-4)" novalidate>
+          <div class="field">
+            <label class="field-label" for="org-weight">Peso oficial na balança (kg)</label>
+            <input class="input" id="org-weight" type="number" step="0.1" min="0.1" max="99999" required aria-describedby="org-weight-error">
+            <span class="field-error" id="org-weight-error" role="alert">Informe o peso aferido.</span>
+            <span class="field-hint">É este peso que valida a coleta e atualiza o impacto do cliente.</span>
+          </div>
+          <div class="field">
+            <label class="field-label" for="org-destination">Organização receptora</label>
+            <select class="input" id="org-destination"></select>
+          </div>
+          <button class="btn btn-primary" type="submit">Confirmar recebimento</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Organização — Resultado -->
+    <section class="screen" id="screen-org-result" aria-label="Ciclo concluído">
+      <div class="screen-body center-col" style="justify-content:center;flex:1">
+        <div class="result-hero">
+          <span style="font-size:2.5rem">✅</span>
+          <h1 style="margin-top:var(--space-3)">Ciclo fechado!</h1>
+        </div>
+        <div class="card" style="width:100%">
+          <div class="kpi-grid">
+            <div class="kpi-card"><span class="kpi-value" data-role="org-result-weight">—</span><span class="kpi-label">Validado</span></div>
+            <div class="kpi-card"><span class="kpi-value" data-role="org-result-seal">—</span><span class="kpi-label">Selo do cliente</span></div>
+          </div>
+          <p class="text-sm text-center" style="margin-top:var(--space-4)">Impacto contabilizado para <strong data-role="org-result-client">—</strong>.</p>
+        </div>
+        <p class="text-muted text-center" style="margin-top:var(--space-5)">O material recuperado vira renda para o catador e comprovação para o cliente.</p>
+        <button class="btn btn-primary" type="button" data-action="navigate" data-target="org-home" style="margin-top:var(--space-4)">Voltar ao início</button>
+      </div>
+    </section>
+
+    <!-- Organização — Histórico -->
+    <section class="screen" id="screen-org-history" aria-label="Histórico da organização">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Histórico</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="kpi-grid" id="org-history-kpis"></div>
+        <div class="stack" id="org-history-list"></div>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação da organização">
+        <button class="bottom-nav-item" data-nav-target="org-home" data-action="navigate" data-target="org-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="org-history" data-action="navigate" data-target="org-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Histórico</button>
+        <button class="bottom-nav-item" data-nav-target="org-profile" data-action="navigate" data-target="org-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
+    <!-- Organização — Perfil -->
+    <section class="screen" id="screen-org-profile" aria-label="Perfil da organização">
+      <header class="app-header">
+        <div class="app-header-title"><span class="app-header-greeting" style="font-size:var(--fs-md)">Perfil</span></div>
+      </header>
+      <div class="screen-body stack">
+        <div class="card card-row">
+          <div class="card-row" style="gap:var(--space-3)">
+            <span class="avatar" data-role="org-avatar">O</span>
+            <div><strong data-role="org-profile-name">—</strong><div class="text-xs text-muted">Organização de catadores · Porto Velho/RO</div></div>
+          </div>
+        </div>
+        <button class="btn btn-outline" type="button" data-action="logout">Sair e trocar de perfil</button>
+      </div>
+      <nav class="bottom-nav" aria-label="Navegação da organização">
+        <button class="bottom-nav-item" data-nav-target="org-home" data-action="navigate" data-target="org-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>Início</button>
+        <button class="bottom-nav-item" data-nav-target="org-history" data-action="navigate" data-target="org-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Histórico</button>
+        <button class="bottom-nav-item" data-nav-target="org-profile" data-action="navigate" data-target="org-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
+      </nav>
+    </section>
+
   </main>
 
   <!-- ======================= MODAL DE CONFIRMAÇÃO (reutilizável) ======================= -->
@@ -708,12 +842,14 @@
 
 <script src="js/utils.js"></script>
 <script src="js/data.js"></script>
+<script src="js/agenda.js"></script>
 <script src="js/state.js"></script>
 <script src="js/router.js"></script>
 <script src="js/components.js"></script>
 <script src="js/photos.js"></script>
 <script src="js/empresa.js"></script>
 <script src="js/catador.js"></script>
+<script src="js/organizacao.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

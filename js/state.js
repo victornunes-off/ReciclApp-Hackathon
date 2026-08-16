@@ -7,11 +7,12 @@ const ReciclState = (() => {
   const STORAGE_KEY = 'reciclapp_state_v1';
 
   const appState = {
-    currentProfile: null, // 'empresa' | 'catador'
+    currentProfile: null, // 'empresa' | 'catador' | 'organizacao'
     currentUser: null, // { name, orgName? }
     collectorAvailable: true,
     collections: [],
     notifications: [],
+    contract: null, // { active, clientName, address, frequency, nextTriggerDate, ... }
     demoModeActive: false,
   };
 
@@ -70,8 +71,22 @@ const ReciclState = (() => {
     appState.collectorAvailable = true;
     appState.collections = [];
     appState.notifications = [];
+    appState.contract = null;
     appState.demoModeActive = false;
     persist();
+  }
+
+  function setContract(contract) {
+    appState.contract = contract;
+    persist();
+    return contract;
+  }
+
+  function updateContract(changes) {
+    if (!appState.contract) return null;
+    Object.assign(appState.contract, changes);
+    persist();
+    return appState.contract;
   }
 
   function setProfile(profile, user) {
@@ -142,27 +157,46 @@ const ReciclState = (() => {
     const now = Date.now();
     const isoDaysAgo = (days) => new Date(now - days * 86400000).toISOString().slice(0, 10);
 
+    // Contrato ativo: é o que o motor de agendamento monitora.
+    appState.contract = {
+      active: true,
+      clientName: 'Condomínio Parque das Águas',
+      clientType: 'Condomínio residencial',
+      address: 'Av. Imigrantes, 500 — Porto Velho/RO',
+      frequency: 'quinzenal',
+      materials: ['papelao', 'plastico', 'papel', 'metal'],
+      startedAt: isoDaysAgo(120),
+      lastTriggerDate: isoDaysAgo(14),
+      nextTriggerDate: isoDaysAgo(1), // já vencido: o motor abre a coleta ao iniciar
+    };
+
+    // Histórico já validado — é o que sustenta o Selo de Sustentabilidade.
     appState.collections = [
       {
-        id: 'col-1017',
-        protocol: '1017',
-        requesterType: 'empresa',
-        requesterName: 'Empresa Verde Ltda.',
-        collectionType: 'esporadica',
-        materials: ['papel', 'metal'],
-        quantityLabel: 'Média',
-        weightFinal: 44,
-        quality: 88,
-        status: 'concluida',
-        date: isoDaysAgo(4),
-        address: 'Av. Imigrantes, 500',
-        collectorName: 'Mariana Souza',
+        id: 'col-1017', protocol: '1017', requesterType: 'empresa',
+        requesterName: 'Condomínio Parque das Águas', origin: 'contrato',
+        collectionType: 'recorrente', materials: ['papel', 'metal'],
+        quantityLabel: 'Conforme acúmulo do período',
+        weightFinal: 44, weightValidated: 44, quality: 88, status: 'validado',
+        date: isoDaysAgo(14), slaOpenedAt: isoDaysAgo(14), slaDueAt: isoDaysAgo(9),
+        pickedUpAt: isoDaysAgo(12), address: 'Av. Imigrantes, 500',
+        collectorName: 'Mariana Souza', organizationName: 'Cooperativa Recicla PVH',
+      },
+      {
+        id: 'col-0998', protocol: '0998', requesterType: 'empresa',
+        requesterName: 'Condomínio Parque das Águas', origin: 'contrato',
+        collectionType: 'recorrente', materials: ['papelao', 'plastico'],
+        quantityLabel: 'Conforme acúmulo do período',
+        weightFinal: 512, weightValidated: 505, quality: 91, status: 'validado',
+        date: isoDaysAgo(28), slaOpenedAt: isoDaysAgo(28), slaDueAt: isoDaysAgo(23),
+        pickedUpAt: isoDaysAgo(26), address: 'Av. Imigrantes, 500',
+        collectorName: 'Carlos Mendes', organizationName: 'Associação Mais Vida',
       },
     ];
 
     appState.notifications = [
-      { id: ReciclUtils.generateId('notif'), profile: 'empresa', read: false, createdAt: new Date(now - 3600000).toISOString(), title: 'Carlos aceitou sua coleta', body: 'Coleta #1017 está em andamento.' },
-      { id: ReciclUtils.generateId('notif'), profile: 'catador', read: false, createdAt: new Date(now - 7200000).toISOString(), title: 'Nova oportunidade próxima', body: 'Empresa Verde · 1,8 km de distância.' },
+      { id: ReciclUtils.generateId('notif'), profile: 'empresa', read: false, createdAt: new Date(now - 3600000).toISOString(), title: 'Coleta #1017 validada', body: '44 kg confirmados pela Cooperativa Recicla PVH.' },
+      { id: ReciclUtils.generateId('notif'), profile: 'catador', read: false, createdAt: new Date(now - 7200000).toISOString(), title: 'Nova oportunidade próxima', body: 'Condomínio Parque das Águas · 1,8 km de distância.' },
     ];
 
     persist();
@@ -191,6 +225,8 @@ const ReciclState = (() => {
     getUnreadCount,
     getNotificationsByProfile,
     setCollectorAvailability,
+    setContract,
+    updateContract,
     seedDemoData,
   };
 })();
