@@ -486,29 +486,45 @@ textarea.input {
   display: flex;
   z-index: 100;
 }
+/* Ícones e rótulos com peso e contraste altos: a navegação precisa funcionar
+   para baixa visão e para quem tem pouca familiaridade com apps. */
 .bottom-nav-item {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 4px;
   background: transparent;
   border: none;
-  color: var(--color-text-muted);
-  font-size: 11px;
-  font-weight: var(--fw-medium);
+  color: var(--color-nav-inactive);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
   padding: var(--space-2) 0;
+}
+.bottom-nav-item svg {
+  width: 26px;
+  height: 26px;
+  stroke: currentColor;
+  stroke-width: 2.1;
 }
 .bottom-nav-item.is-active {
   color: var(--color-petroleo);
 }
-.bottom-nav-item.is-active svg { stroke: var(--color-petroleo); }
-.bottom-nav-item svg {
-  width: 22px;
-  height: 22px;
-  stroke: var(--color-text-muted);
+.bottom-nav-item.is-active svg {
+  stroke-width: 2.5;
 }
+/* Estado ativo não depende só de cor: ganha um traço no topo. */
+.bottom-nav-item.is-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 34px;
+  height: 3px;
+  border-radius: 0 0 var(--radius-pill) var(--radius-pill);
+  background: var(--color-lima);
+}
+.bottom-nav-item { position: relative; }
 
 /* ---------- Header ---------- */
 /* Fixo no topo da tela: fora da área de rolagem (.screen-body). */
@@ -664,6 +680,100 @@ textarea.input {
 }
 .option-select strong { color: var(--color-ink); font-size: var(--fs-base); }
 .option-select span { color: var(--color-text-muted); font-size: var(--fs-xs); }
+
+/* ---------- Gráfico de colunas ----------
+   Marcas finas, grade recessiva e rótulo só no mês corrente. */
+.chart {
+  position: relative;
+}
+.chart-plot {
+  position: relative;
+  height: 148px;
+  margin-bottom: var(--space-2);
+}
+.chart-gridline {
+  position: absolute;
+  left: 34px;
+  right: 0;
+  height: 1px;
+  background: var(--color-border);
+}
+.chart-ytick {
+  position: absolute;
+  right: calc(100% + var(--space-2));
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.chart-bars {
+  position: absolute;
+  inset: 0 0 0 34px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;                 /* separador em cor de superfície */
+}
+.chart-bar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+.chart-bar-fill {
+  width: 100%;
+  max-width: 24px;          /* nunca preenche a faixa inteira */
+  border-radius: 4px 4px 0 0;
+  background: var(--color-turquesa);
+  transition: height var(--transition-slow);
+}
+.chart-bar.is-current .chart-bar-fill {
+  background: var(--color-petroleo);
+}
+.chart-bar-value {
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  color: var(--color-petroleo);
+  white-space: nowrap;
+}
+.chart-bar:focus-visible .chart-bar-fill {
+  outline: 3px solid var(--color-turquesa);
+  outline-offset: 2px;
+}
+.chart-x {
+  display: flex;
+  gap: 2px;
+  padding-left: 34px;
+}
+.chart-xlabel {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.chart-xlabel.is-current {
+  color: var(--color-petroleo);
+  font-weight: var(--fw-semibold);
+}
+.chart-tooltip {
+  margin-top: var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--color-petroleo);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-pill);
+  padding: 4px var(--space-3);
+  width: fit-content;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+.chart-tooltip.is-visible { opacity: 1; }
 
 /* ---------- Selo de Sustentabilidade ---------- */
 .seal-card {

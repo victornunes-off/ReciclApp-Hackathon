@@ -208,7 +208,56 @@ Na tela de frequência há um botão **"Simular vencimento do prazo"**, marcado 
 **Por quê:** o motor depende de datas reais. Sem esse atalho, seria impossível mostrar o ciclo
 completo numa apresentação de 5 minutos sem esperar dias.
 
-### 5.11 Modo demonstração
+### 5.11 Cenário carrega sozinho (sem botão de demonstração)
+
+O botão "Iniciar demonstração" foi removido do splash. O cenário (contrato quinzenal,
+histórico validado, selo Ouro) é semeado **automaticamente** na primeira abertura, ou
+sempre que o armazenamento estiver vazio.
+
+**Por quê:** o botão poluía a tela inicial. Mas sem ele o app abriria sem contrato, sem
+histórico e sem selo — nada para demonstrar. Semear na inicialização resolve os dois lados.
+Para recomeçar do zero, limpe o armazenamento do navegador.
+
+### 5.12 Sem barra de rolagem, rolagem por toque
+
+Barras de rolagem ocultas globalmente (`scrollbar-width: none` + `::-webkit-scrollbar`),
+mantendo a rolagem funcional.
+
+**Por quê:** barra de rolagem visível denuncia "página web". O protótipo precisa parecer
+um app nativo.
+
+### 5.13 Gráfico do dashboard
+
+Colunas dos últimos 6 meses de material **validado**, acima dos KPIs.
+
+Decisões, seguindo boas práticas de visualização:
+
+- **Série única → sem legenda.** O título já diz o que está plotado; uma legenda de um
+  item só repetiria o título.
+- **Rótulo apenas no mês corrente.** Número em cada coluna vira ruído e não é lido; os
+  demais valores ficam no eixo, no toque e na tabela oculta.
+- **Cores validadas por script, não no olho.** Turquesa nas colunas e petróleo no mês
+  corrente — ambos com contraste ≥ 3:1 sobre a superfície. A alternativa em lima foi
+  **descartada**: o validador apontou ΔE 14,6 contra o turquesa, abaixo do piso de 15,
+  ou seja, difícil de distinguir mesmo com visão normal.
+- **Colunas de no máximo 24 px**, topo arredondado em 4 px, base reta, 2 px de respiro
+  entre elas e grade em fio de 1 px, recessiva.
+- Cada coluna é um `<button>` — tocável, focável por teclado e com `aria-label`. Uma
+  tabela visualmente oculta garante acesso aos números por leitor de tela.
+
+O gráfico é alimentado pelos dados reais do estado: ao validar uma coleta, a coluna do
+mês corrente cresce na hora (verificado: 44 kg → 318 kg).
+
+### 5.14 Navegação inferior legível para baixa visão
+
+Ícones de 26 px com traço 2,1, rótulos de 12 px semibold e cor `--color-nav-inactive`
+(#3A4A44) — contraste **9,36:1** sobre o branco, contra ~5,6:1 de antes com traço fino.
+O item ativo ganha ainda um marcador lima no topo.
+
+**Por quê:** o ícone inativo parecia desligado. Além do contraste, o estado ativo não pode
+depender só de cor — daí o marcador.
+
+### 5.15 Modo demonstração
 
 O botão "Iniciar demonstração" carrega o cenário e já entra como **Empresa Verde Ltda.**
 Ao trocar de perfil, o formulário de login vem **pré-preenchido** com a persona daquele
@@ -312,6 +361,7 @@ adicional que alia ESG a publicidade estratégica.
 | 16/08/2026 | Perfil Usuário desativado (comentado) — commits `0b60616`, `2261c8f`, `c5961bb` |
 | 16/08/2026 | Criação deste documento de contexto |
 | 16/08/2026 | Perfil Usuário **removido de vez** (`3e15813`): −642 linhas, CSS órfão limpo, init resiliente a perfil descontinuado |
+| 16/08/2026 | Splash sem botão de demo (cenário automático), sem barra de rolagem, gráfico mensal no dashboard e navegação inferior legível para baixa visão |
 | 16/08/2026 | Pivô B2B: contrato recorrente + motor de SLA de 5 dias úteis, perfil Organização com validação por pesagem, Selo de Sustentabilidade e mapa do catador com rota |
 
 ---

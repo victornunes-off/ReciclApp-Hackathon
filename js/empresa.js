@@ -41,6 +41,36 @@ const ReciclEmpresa = (() => {
     return { kg, quality, collections, collectors, events };
   }
 
+  /* Histórico anterior ao protótipo, para o gráfico não nascer vazio. */
+  const MONTHLY_BASELINE_KG = [180, 240, 210, 305, 352];
+
+  /** Últimos 6 meses de material validado, para o gráfico do dashboard. */
+  function getMonthlySeries() {
+    const now = new Date();
+    const months = [];
+    for (let offset = 5; offset >= 0; offset -= 1) {
+      const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const label = date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+      months.push({
+        key: `${date.getFullYear()}-${date.getMonth()}`,
+        label: label.charAt(0).toUpperCase() + label.slice(1),
+        value: 0,
+        isCurrent: offset === 0,
+      });
+    }
+
+    ReciclState.getCollectionsByProfile('empresa')
+      .filter((collection) => collection.status === 'validado')
+      .forEach((collection) => {
+        const date = new Date(collection.validatedAt || `${collection.date}T00:00:00`);
+        const bucket = months.find((month) => month.key === `${date.getFullYear()}-${date.getMonth()}`);
+        if (bucket) bucket.value += collection.weightValidated || collection.weightFinal || 0;
+      });
+
+    months.slice(0, 5).forEach((month, index) => { month.value += MONTHLY_BASELINE_KG[index]; });
+    return months;
+  }
+
   /**
    * Selo de Sustentabilidade: combina volume validado com consistência —
    * retiradas feitas dentro da janela de SLA.
@@ -140,6 +170,10 @@ const ReciclEmpresa = (() => {
     document.querySelector('[data-role="empresa-greeting"]').textContent = `Olá, ${currentOrgName()}.`;
     renderSealCard(document.getElementById('empresa-seal'));
     renderContractCard(document.getElementById('empresa-contract'));
+    ReciclComponents.renderColumnChart(document.getElementById('empresa-chart'), {
+      series: getMonthlySeries(),
+      caption: 'Material validado por mês, em quilos',
+    });
     const impact = computeImpact();
     ReciclComponents.renderKpis(document.getElementById('empresa-dashboard-kpis'), [
       { value: formatKg(impact.kg), label: 'Reciclados' },

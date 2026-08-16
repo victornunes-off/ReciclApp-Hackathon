@@ -136,11 +136,11 @@ Na tela inicial, escolha um dos perfis. Não há autenticação real — qualque
 
 ## Modo demonstração
 
-Na tela inicial, o botão **"Iniciar demonstração"** carrega um cenário pronto — contrato quinzenal ativo, histórico já validado e selo **Ouro** — e loga automaticamente como **Condomínio Parque das Águas**.
+O cenário de demonstração — contrato quinzenal ativo, histórico já validado e selo **Ouro** — é carregado **automaticamente** na primeira abertura. Para recomeçar do zero, limpe o armazenamento do navegador (DevTools → Application → Local Storage).
 
 ### Roteiro sugerido para o pitch (ciclo completo)
 
-1. **Cliente** — no dashboard, mostre o **Selo de Sustentabilidade** e o card do contrato com a frequência vigente. Toque em **Alterar** para exibir as periodicidades e, na mesma tela, use **"Simular vencimento do prazo"** (atalho de demonstração) para o motor abrir a coleta com a janela de 5 dias úteis.
+1. **Cliente** — no dashboard, mostre o **Selo de Sustentabilidade**, o **gráfico mensal** de material validado e o card do contrato com a frequência vigente. Toque em **Alterar** para exibir as periodicidades e, na mesma tela, use **"Simular vencimento do prazo"** (atalho de demonstração) para o motor abrir a coleta com a janela de 5 dias úteis.
 2. **Catador** — saia e entre como *João da Silva* (login já preenchido). A coleta aparece **no mapa com a rota traçada** e com o prazo restante no card. Toque nela → **Aceitar → Iniciar → Registrar**: informe o peso e **tire a foto do material** (obrigatória). Repare que a tela avisa o próximo passo: levar à organização.
 3. **Organização** — saia e entre como *Cooperativa Recicla PVH*. A entrega está na fila **"Aguardando pesagem"**, com a foto e o peso declarado pelo catador. Registre o **peso oficial da balança** e confirme.
 4. **Cliente de volta** — o dashboard já contabiliza o peso **validado**, o selo se atualiza e a próxima coleta é reagendada automaticamente pela frequência.
@@ -153,6 +153,7 @@ O fluxo **avulso** (esporádica, evento e grande volume) continua disponível em
 - **Contrato recorrente** com frequência alterável a qualquer momento (7 / 15 / 30 / 60 dias).
 - **Motor de agendamento** que abre a ordem de coleta no vencimento, com janela de **5 dias úteis** e contagem regressiva.
 - **Selo de Sustentabilidade** (Bronze → Prata → Ouro → Diamante) por volume validado **e** consistência de retiradas no prazo.
+- **Gráfico mensal** de material validado no dashboard, alimentado pelos dados reais do estado.
 - **Validação por pesagem na organização** — é ela que fecha o ciclo e libera os dados de impacto.
 - **Mapa do catador** com os pontos dentro da janela de SLA e rota traçada (CSS puro, sem API de mapas).
 - Coletas avulsas mantidas: esporádica, evento e grande volume (orçamento).

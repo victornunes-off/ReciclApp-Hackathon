@@ -23,6 +23,9 @@
   --color-white: #FFFFFF;
   --color-ink: #16241F;
   --color-text-muted: #5C6B64;
+  /* Navegação inferior: mais escuro que o texto secundário para o ícone
+     inativo não parecer desligado (contraste ~8:1 sobre branco). */
+  --color-nav-inactive: #3A4A44;
   --color-border: #E1DDCB;
   --color-border-strong: #C7C2AC;
   --color-surface: #FFFFFF;

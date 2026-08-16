@@ -204,6 +204,95 @@ const ReciclComponents = (() => {
     });
   }
 
+  /**
+   * Gráfico de colunas para uma única série ao longo do tempo.
+   *
+   * Série única, então sem legenda — o título já diz o que está plotado.
+   * Rotula apenas o mês corrente: valor em cada coluna vira ruído e não é lido.
+   * Cada coluna é um <button> para ser tocável, focável por teclado e legível
+   * por leitor de tela; a tabela oculta abaixo garante o acesso aos números.
+   */
+  function renderColumnChart(container, { series, unit = 'kg', caption } = {}) {
+    container.innerHTML = '';
+    if (!series || !series.length) {
+      renderEmptyState(container, { title: 'Sem dados ainda', text: 'Os meses aparecerão aqui conforme as coletas forem validadas.' });
+      return;
+    }
+
+    const maxValue = Math.max(...series.map((point) => point.value), 1);
+    const axisTop = niceCeiling(maxValue);
+
+    const chart = el('div', { class: 'chart' });
+
+    // Eixo Y + área de plotagem
+    const plot = el('div', { class: 'chart-plot' });
+    [1, 0.5, 0].forEach((fraction) => {
+      plot.appendChild(el('div', { class: 'chart-gridline', style: `bottom:${fraction * 100}%` }, [
+        el('span', { class: 'chart-ytick', text: formatCompact(axisTop * fraction) }),
+      ]));
+    });
+
+    const bars = el('div', { class: 'chart-bars' });
+    const tooltip = el('div', { class: 'chart-tooltip', role: 'status', 'aria-live': 'polite' });
+
+    series.forEach((point) => {
+      const heightPct = (point.value / axisTop) * 100;
+      const bar = el('button', {
+        type: 'button',
+        class: `chart-bar${point.isCurrent ? ' is-current' : ''}`,
+        'aria-label': `${point.label}: ${formatKg(point.value)}`,
+        onClick: () => showPoint(point),
+        onMouseenter: () => showPoint(point),
+        onFocus: () => showPoint(point),
+      }, [
+        point.isCurrent
+          ? el('span', { class: 'chart-bar-value', text: formatCompact(point.value) })
+          : null,
+        el('span', { class: 'chart-bar-fill', style: `height:${Math.max(heightPct, 1.5)}%` }),
+      ]);
+      bars.appendChild(bar);
+    });
+
+    function showPoint(point) {
+      tooltip.textContent = `${point.label} · ${formatKg(point.value)}`;
+      tooltip.classList.add('is-visible');
+    }
+
+    plot.appendChild(bars);
+    chart.appendChild(plot);
+    chart.appendChild(el('div', { class: 'chart-x' }, series.map((point) => (
+      el('span', { class: `chart-xlabel${point.isCurrent ? ' is-current' : ''}`, text: point.label })
+    ))));
+    chart.appendChild(tooltip);
+
+    // Alternativa textual aos dados do gráfico
+    const table = el('table', { class: 'sr-only' }, [
+      el('caption', { text: caption || `Série mensal em ${unit}` }),
+      el('tbody', {}, series.map((point) => el('tr', {}, [
+        el('th', { scope: 'row', text: point.label }),
+        el('td', { text: formatKg(point.value) }),
+      ]))),
+    ]);
+
+    container.appendChild(chart);
+    container.appendChild(table);
+  }
+
+  /** Teto "redondo" para o eixo (100, 250, 500, 1.000...). */
+  function niceCeiling(value) {
+    const magnitude = 10 ** Math.floor(Math.log10(value));
+    const steps = [1, 2, 2.5, 5, 10];
+    const step = steps.find((candidate) => value <= candidate * magnitude) || 10;
+    return step * magnitude;
+  }
+
+  function formatCompact(value) {
+    const rounded = Math.round(value);
+    return rounded >= 1000
+      ? `${(rounded / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}k`
+      : String(rounded);
+  }
+
   // ---------- KPI grid ----------
   function renderKpis(container, kpis) {
     container.innerHTML = '';
@@ -267,5 +356,6 @@ const ReciclComponents = (() => {
     renderKpis,
     renderMaterialChipGrid,
     renderOptionList,
+    renderColumnChart,
   };
 })();

@@ -80,14 +80,15 @@
     ReciclRouter.navigate('splash', { profile: null, replace: true });
   }
 
-  function startDemo() {
+  /**
+   * Carrega o cenário na primeira abertura (ou após limpar o armazenamento).
+   * Sem isso o protótipo abriria sem contrato, sem histórico e sem selo —
+   * nada para demonstrar.
+   */
+  function seedScenarioIfEmpty() {
+    const { contract, collections } = ReciclState.appState;
+    if (contract || collections.length) return;
     ReciclState.seedDemoData();
-    const persona = DEMO_PERSONAS.empresa;
-    ReciclState.setProfile('empresa', { name: persona.name, orgName: persona.orgName });
-    ReciclAgenda.runSchedulingEngine();
-    ReciclRouter.resetHistory();
-    ReciclComponents.showToast('Modo demonstração ativado — você está como Condomínio Parque das Águas.', 'success');
-    ReciclRouter.navigate('empresa-dashboard', { profile: 'empresa', replace: true });
   }
 
   // ---------- Notificações ----------
@@ -150,7 +151,6 @@
   // ---------- Mapa de ações (delegação de eventos) ----------
   const actions = {
     'select-profile': (targetEl) => selectProfile(targetEl.dataset.profile),
-    'start-demo': () => startDemo(),
     'logout': () => logout(),
     'back': () => ReciclRouter.back('splash'),
     'close-modal': (targetEl) => ReciclComponents.closeModal(targetEl.dataset.modal),
@@ -173,6 +173,7 @@
   function init() {
     ReciclRouter.init();
     ReciclState.ensureLoaded();
+    seedScenarioIfEmpty();
 
     ReciclPhotos.init();
     ReciclEmpresa.init();

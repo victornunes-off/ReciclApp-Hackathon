@@ -89,6 +89,17 @@ textarea:focus-visible,
   border-radius: var(--radius-sm);
 }
 
+/* Rolagem por toque, sem barra visível — o app não deve parecer uma página web. */
+* {
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* Edge legado */
+}
+*::-webkit-scrollbar {            /* Chrome, Safari */
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
