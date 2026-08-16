@@ -5,6 +5,9 @@
 
 Protótipo navegável do ReciclApp — solução **B2B** que conecta grandes geradores (condomínios, residenciais, empresas e escolas com CNPJ) a catadores autônomos, e garante a destinação do material às organizações de catadores de Porto Velho. Desenvolvido para o hackathon **"Origem Limpa: Mais Recicláveis e Menos Rejeito na Fonte"**.
 
+> 🔗 **Demo ao vivo:** https://victornunes-off.github.io/ReciclApp-Hackathon/
+> Abre direto no celular, sem instalar nada.
+
 > 📄 **[CONTEXTO.md](CONTEXTO.md)** — estado atual, decisões tomadas (e o porquê), bugs corrigidos e pendências.
 
 > ⚠️ **Este é um protótipo de demonstração (MVP).** Não há backend, banco de dados, autenticação real, pagamentos ou integrações externas. Todos os dados (empresas, catadores, eventos, coletas) são fictícios e usados apenas para fins de apresentação.

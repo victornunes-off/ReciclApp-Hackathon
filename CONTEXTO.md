@@ -4,6 +4,7 @@
 > Atualizado a cada ajuste no projeto. Última atualização: **16/08/2026**.
 
 Repositório: https://github.com/victornunes-off/ReciclApp-Hackathon
+Demo ao vivo: https://victornunes-off.github.io/ReciclApp-Hackathon/
 
 ---
 
@@ -309,16 +310,16 @@ As três tags `<link rel="icon">` apontam para `icon-light.png` — inclusive a 
 `prefers-color-scheme: dark`. Ou seja, `icon-dark.png` está no repositório mas nunca é usado.
 Se foi intencional, dá para remover o arquivo; se não, basta apontar a tag escura para ele.
 
-### 7.5 GitHub Pages não ativado
+### 7.5 GitHub Pages ativo
 
-O projeto é estático e o repositório é público, então dá para ter link ao vivo para os
-jurados abrirem no celular:
+Demo publicada em https://victornunes-off.github.io/ReciclApp-Hackathon/ (branch `main`,
+raiz, HTTPS forçado). Verificado no ar: ciclo completo funcionando, console limpo.
 
-```bash
-gh api -X POST repos/victornunes-off/ReciclApp-Hackathon/pages -f "source[branch]=main" -f "source[path]=/"
-```
+Atenção para a apresentação: **cada origem tem seu próprio `localStorage`**. O cenário do
+Pages é independente do que você tenha no Live Server ou no `file://`. Use sempre a mesma
+origem ao ensaiar e ao apresentar.
 
-Ficaria em `https://victornunes-off.github.io/ReciclApp-Hackathon/`. Não ativado ainda.
+Cada `git push` na `main` republica o site automaticamente (leva ~1 minuto).
 
 ### 7.6 Campo estruturado de acondicionamento
 
@@ -361,6 +362,7 @@ adicional que alia ESG a publicidade estratégica.
 | 16/08/2026 | Perfil Usuário desativado (comentado) — commits `0b60616`, `2261c8f`, `c5961bb` |
 | 16/08/2026 | Criação deste documento de contexto |
 | 16/08/2026 | Perfil Usuário **removido de vez** (`3e15813`): −642 linhas, CSS órfão limpo, init resiliente a perfil descontinuado |
+| 16/08/2026 | GitHub Pages ativado — demo ao vivo publicada e verificada |
 | 16/08/2026 | Splash sem botão de demo (cenário automático), sem barra de rolagem, gráfico mensal no dashboard e navegação inferior legível para baixa visão |
 | 16/08/2026 | Pivô B2B: contrato recorrente + motor de SLA de 5 dias úteis, perfil Organização com validação por pesagem, Selo de Sustentabilidade e mapa do catador com rota |
 
