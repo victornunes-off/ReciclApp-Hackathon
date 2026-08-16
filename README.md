@@ -5,6 +5,8 @@
 
 Protótipo navegável do ReciclApp — uma plataforma de conexão e gestão de coletas de recicláveis entre usuários, empresas e catadores. Desenvolvido para o hackathon **"Origem Limpa: Mais Recicláveis e Menos Rejeito na Fonte"**.
 
+> 📄 **[CONTEXTO.md](CONTEXTO.md)** — estado atual, decisões tomadas (e o porquê), bugs corrigidos e pendências.
+
 > ⚠️ **Este é um protótipo de demonstração (MVP).** Não há backend, banco de dados, autenticação real, pagamentos ou integrações externas. Todos os dados (empresas, catadores, eventos, coletas) são fictícios e usados apenas para fins de apresentação.
 
 ---
